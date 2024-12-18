@@ -1,0 +1,18 @@
+package com.example.sourcebase.mapper;
+
+import com.example.sourcebase.domain.Project;
+import com.example.sourcebase.domain.User;
+import com.example.sourcebase.domain.dto.resdto.ProjectResDTO;
+import com.example.sourcebase.domain.dto.resdto.user.UserResDTO;
+import org.mapstruct.Mapping;
+
+public interface ProjectUserMapper {
+    @Mapping(target = "rank", source = "rank")
+    UserResDTO userToUserDTO(User user);
+
+    @Mapping(target = "id", ignore = true)
+
+    Project projectDTOToProject(ProjectResDTO projectDTO);
+
+    ProjectResDTO projectToProjectDTO(Project project);
+}

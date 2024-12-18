@@ -1,0 +1,19 @@
+RENAME TABLE levels TO ranks;
+
+CREATE TABLE assesses
+(
+    id              BIGINT AUTO_INCREMENT NOT NULL,
+    user_id         BIGINT                NULL,
+    to_user_id      BIGINT                NULL,
+    assessment_date date                  NULL,
+    assessment_type VARCHAR(255)          NULL,
+    total_point     INT                   NOT NULL,
+    CONSTRAINT pk_assesses PRIMARY KEY (id)
+);
+
+ALTER TABLE assesses
+    ADD CONSTRAINT FK_ASSESSES_ON_TO_USER FOREIGN KEY (to_user_id) REFERENCES users (id);
+
+ALTER TABLE assesses
+    ADD CONSTRAINT FK_ASSESSES_ON_USER FOREIGN KEY (user_id) REFERENCES users (id);
+

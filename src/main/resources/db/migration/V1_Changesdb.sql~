@@ -1,0 +1,100 @@
+USE DATABASE tech_assess360;
+ALTER TABLE users
+    ADD COLUMN rank_id BIGIN null;
+
+CREATE TABLE criterias
+(
+    id    BIGINT AUTO_INCREMENT NOT NULL,
+    title VARCHAR(255)          NULL,
+    point INT                   NOT NULL,
+    CONSTRAINT pk_criteria PRIMARY KEY (id)
+);
+
+CREATE TABLE questions
+(
+    id          BIGINT AUTO_INCREMENT NOT NULL,
+    title       VARCHAR(255)          NULL,
+    point       INT                   NOT NULL,
+    criteria_id BIGINT                NULL,
+    CONSTRAINT pk_questions PRIMARY KEY (id)
+);
+
+ALTER TABLE questions
+    ADD CONSTRAINT FK_QUESTIONS_ON_CRITERIA FOREIGN KEY (criteria_id) REFERENCES criteria (id);
+
+CREATE TABLE projects
+(
+    id        BIGINT AUTO_INCREMENT NOT NULL,
+    name      VARCHAR(255)          NULL,
+    start_day date                  NULL,
+    end_day   date                  NULL,
+    CONSTRAINT pk_projects PRIMARY KEY (id)
+);
+
+CREATE TABLE projects_user
+(
+    user_roles_id BIGINT NOT NULL,
+    user_id       BIGINT NOT NULL
+);
+
+ALTER TABLE projects_user
+    ADD CONSTRAINT fk_prouse_on_project FOREIGN KEY (user_roles_id) REFERENCES projects (id);
+
+ALTER TABLE projects_user
+    ADD CONSTRAINT fk_prouse_on_user FOREIGN KEY (user_id) REFERENCES users (id);
+
+CREATE TABLE positions
+(
+    id   BIGINT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(255)          NULL,
+    CONSTRAINT pk_positions PRIMARY KEY (id)
+);
+
+CREATE TABLE ranks
+(
+    id          BIGINT AUTO_INCREMENT NOT NULL,
+    position_id BIGINT                NULL,
+    level       VARCHAR(255)          NULL,
+    CONSTRAINT pk_levels PRIMARY KEY (id)
+);
+
+ALTER TABLE ranks
+    ADD CONSTRAINT FK_LEVELS_ON_POSITION FOREIGN KEY (position_id) REFERENCES positions (id);
+
+CREATE TABLE assesses
+(
+    id              BIGINT AUTO_INCREMENT NOT NULL,
+    user_id         BIGINT                NULL,
+    to_user_id      BIGINT                NULL,
+    assessment_date date                  NULL,
+    assessment_type VARCHAR(255)          NULL,
+    total_point     INT                   NOT NULL,
+    CONSTRAINT pk_assesses PRIMARY KEY (id)
+);
+
+ALTER TABLE assesses
+    ADD CONSTRAINT FK_ASSESSES_ON_TO_USER FOREIGN KEY (to_user_id) REFERENCES users (id);
+
+ALTER TABLE assesses
+    ADD CONSTRAINT FK_ASSESSES_ON_USER FOREIGN KEY (user_id) REFERENCES users (id);
+
+CREATE TABLE assess_details
+(
+    id            BIGINT AUTO_INCREMENT NOT NULL,
+    assess_id     BIGINT                NULL,
+    criteria_id   BIGINT                NULL,
+    question_id   BIGINT                NULL,
+    value         INT                   NOT NULL,
+    `description` VARCHAR(255)          NULL,
+    is_comment    BIT(1)                NOT NULL,
+    CONSTRAINT pk_assess_details PRIMARY KEY (id)
+);
+
+ALTER TABLE assess_details
+    ADD CONSTRAINT FK_ASSESS_DETAILS_ON_ASSESS FOREIGN KEY (assess_id) REFERENCES assesses (id);
+
+ALTER TABLE assess_details
+    ADD CONSTRAINT FK_ASSESS_DETAILS_ON_CRITERIA FOREIGN KEY (criteria_id) REFERENCES criterias (id);
+
+ALTER TABLE assess_details
+    ADD CONSTRAINT FK_ASSESS_DETAILS_ON_QUESTION FOREIGN KEY (question_id) REFERENCES questions (id);

@@ -1,0 +1,8 @@
+package com.example.sourcebase.domain.dto.reqdto;
+
+import java.util.List;
+
+public class AddEmployeesToProjectRequestDTO {
+    List<Long> employeeIds;
+
+}

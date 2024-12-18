@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    active: spring.profiles.active
+  jackson:
+    date-format: yyyy-MM-dd
+    time-zone: UTC
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
