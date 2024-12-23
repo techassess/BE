@@ -36,6 +36,8 @@ public enum ErrorCode {
 
     ANSWER_NOT_FOUND(40401, "Answer not found", HttpStatus.NOT_FOUND),
     ANSWER_EXISTED(40901, "Answer already existed", HttpStatus.CONFLICT),
+
+    CRITERIA_EXISTED(40902, "Criteria already existed", HttpStatus.CONFLICT),
     ;
     int code;
     String message;
