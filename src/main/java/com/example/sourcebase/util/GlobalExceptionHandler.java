@@ -2,13 +2,12 @@ package com.example.sourcebase.util;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
 @ControllerAdvice
@@ -23,7 +22,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ResponseData> handlerValidationException(Exception ex, WebRequest request) {
         error.setCode(ErrorCode.USER_NOT_FOUND.getCode());
-        error.setTimestamp(new Date());
+        error.setTimestamp(LocalDateTime.now());
         error.setError(ex.getMessage());
         error.setPath(request.getDescription(false).replace("uri=", ""));
         String message = ex.getMessage();
