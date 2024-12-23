@@ -5,13 +5,18 @@ import com.example.sourcebase.domain.dto.reqdto.CriteriaReqDTO;
 import com.example.sourcebase.domain.dto.resdto.AnswerResDTO;
 import com.example.sourcebase.domain.dto.resdto.CriteriaResDTO;
 import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
+import com.example.sourcebase.exception.AppException;
 import com.example.sourcebase.mapper.CriteriaMapper;
 import com.example.sourcebase.mapper.QuestionMapper;
 import com.example.sourcebase.repository.ICriteriaRepository;
 import com.example.sourcebase.service.ICriteriaService;
+import com.example.sourcebase.util.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -63,5 +68,40 @@ public class CriteriaServiceImpl implements ICriteriaService {
         return criteriaResDTOs;
     }
 
+    @Override
+    public Page<CriteriaResDTO> getAllCriteria(int page, int size, String sortBy, boolean asc) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(asc ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy));
+        return criteriaRepository.findAll(pageable).map(criteriaMapper::toCriteriaResDTO);
+    }
+
+    @Override
+    public CriteriaResDTO getCriteriaById(Long id) {
+        return criteriaRepository.findById(id)
+                .map(criteriaMapper::toCriteriaResDTO)
+                .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
+    }
+
+    @Override
+    public CriteriaResDTO addCriterion(CriteriaReqDTO criteriaReqDTO) {
+        Criteria criteria = criteriaMapper.toEntity(criteriaReqDTO);
+        return criteriaMapper.toCriteriaResDTO(criteriaRepository.save(criteria));
+    }
+
+    @Override
+    public CriteriaResDTO updateCriterion(Long id, CriteriaReqDTO criteriaReqDTO) {
+        return criteriaRepository.findById(id)
+                .map(criteria -> {
+                    criteria = criteriaMapper.partialUpdate(criteriaReqDTO, criteria);
+                    return criteriaMapper.toCriteriaResDTO(criteriaRepository.save(criteria));
+                })
+                .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
+    }
+
+    @Override
+    public void deleteCriterion(Long id) {
+        criteriaRepository.findById(id).ifPresentOrElse(criteriaRepository::delete, () -> {
+            throw new AppException(ErrorCode.CRITERIA_NOT_FOUND);
+        });
+    }
 
 }
