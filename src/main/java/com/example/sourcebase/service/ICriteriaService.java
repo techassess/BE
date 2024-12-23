@@ -2,6 +2,7 @@ package com.example.sourcebase.service;
 
 import com.example.sourcebase.domain.dto.reqdto.CriteriaReqDTO;
 import com.example.sourcebase.domain.dto.resdto.CriteriaResDTO;
+import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -18,5 +19,7 @@ public interface ICriteriaService {
     CriteriaResDTO updateCriterion(Long id, CriteriaReqDTO criteriaReqDTO);
 
     void deleteCriterion(Long id);
+
+    Page<QuestionResDTO> findQuestionsByCriterionId(Long criteriaId, int page, int size, String sortBy, boolean asc);
 
 }
