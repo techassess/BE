@@ -23,4 +23,6 @@ public class Answer {
     @ManyToOne
     Question question;
 
+    @Column(name = "is_deleted", nullable = false)
+    private boolean deleted = false;
 }
