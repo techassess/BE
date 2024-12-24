@@ -25,4 +25,6 @@ public interface IQuestionRepository extends JpaRepository<Question, Long> {
     @Override
     @Query("SELECT q FROM Question q WHERE q.id = :id AND q.isDeleted = false")
     Optional<Question> findById(@Param("id") Long id);
+
+    Page<Question> findAllByTitleContains(String title, Pageable pageable);
 }
