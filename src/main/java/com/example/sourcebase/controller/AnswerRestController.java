@@ -4,9 +4,17 @@ import com.example.sourcebase.domain.dto.reqdto.AnswerReqDto;
 import com.example.sourcebase.service.IAnswerService;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/answers")
@@ -46,7 +54,19 @@ public class AnswerRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateAnswer(@PathVariable Long id, @RequestBody AnswerReqDto answerReqDto) {
+    @Transactional
+    public ResponseEntity<?> updateAnswer(@PathVariable Long id, @Valid @RequestBody AnswerReqDto answerReqDto,
+                                          BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getAllErrors().forEach(error -> {
+                String nameError = ((FieldError) error).getField();
+                String messageError = error.getDefaultMessage();
+                errors.put(nameError, messageError);
+            });
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        }
+
         return ResponseEntity.ok(ResponseData.builder()
                 .code(SuccessCode.UPDATED.getCode())
                 .message(SuccessCode.UPDATED.getMessage())

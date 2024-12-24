@@ -4,15 +4,24 @@ import com.example.sourcebase.domain.dto.reqdto.CriteriaReqDTO;
 import com.example.sourcebase.service.ICriteriaService;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/criterias")
 @AllArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
+@Validated
 public class CriteriaRestController {
     ICriteriaService criteriaService;
 
@@ -52,7 +61,18 @@ public class CriteriaRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseData<?>> updateCriterion(@PathVariable Long id, @RequestBody CriteriaReqDTO criteriaReqDTO) {
+    public ResponseEntity<?> updateCriterion(@PathVariable Long id, @Valid @RequestBody CriteriaReqDTO criteriaReqDTO,
+                                             BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getAllErrors().forEach(error -> {
+                String nameError = ((FieldError) error).getField();
+                String messageError = error.getDefaultMessage();
+                errors.put(nameError, messageError);
+            });
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        }
+
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.UPDATED.getCode())
