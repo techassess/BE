@@ -19,5 +19,6 @@ public class QuestionReqDto implements Serializable {
     private String title;
     private int point;
     private Long criteriaId;
-    private List<Long> answerIds;
+    // private List<Long> answerIds;
+    private List<AnswerReqDto> answers;
 }

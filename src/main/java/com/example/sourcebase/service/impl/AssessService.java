@@ -32,7 +32,6 @@ public class AssessService implements IAssessService {
     AssessMapper assessMapper = AssessMapper.INSTANCE;
     AssessDetailMapper assessDetailMapper = AssessDetailMapper.INSTANCE;
     CriteriaMapper criteriaResMapper = CriteriaMapper.INSTANCE;
-    QuestionMapper questionResMapper = QuestionMapper.INSTANCE;
     IAssessRepository assessRepository;
     IUserRepository userRepository;
     IAssessDetailRepository assessDetailRepository;
