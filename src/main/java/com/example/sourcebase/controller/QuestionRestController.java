@@ -6,14 +6,20 @@ import com.example.sourcebase.service.IQuestionService;
 import com.example.sourcebase.util.ErrorCode;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/questions")
@@ -54,7 +60,18 @@ public class QuestionRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseData<?>> updateQuestion(@PathVariable Long id, @RequestBody QuestionReqDto questionReqDto) {
+    public ResponseEntity<?> updateQuestion(@PathVariable Long id, @Valid @RequestBody QuestionReqDto questionReqDto,
+                                                          BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getAllErrors().forEach(error -> {
+                String nameError = ((FieldError) error).getField();
+                String messageError = error.getDefaultMessage();
+                errors.put(nameError, messageError);
+            });
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        }
+
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.UPDATED.getCode())
