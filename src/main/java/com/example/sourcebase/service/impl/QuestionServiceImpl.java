@@ -70,9 +70,14 @@ public class QuestionServiceImpl implements IQuestionService {
     @Override
     @Transactional
     public void deleteQuestion(Long id) {
-        questionRepository.findById(id).ifPresentOrElse(questionRepository::delete, () -> {
-            throw new AppException(ErrorCode.QUESTION_NOT_FOUND);
-        });
+        Question question = questionRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
+
+        if (question.getAnswers() != null) {
+            question.getAnswers().forEach(answer -> answer.setDeleted(true));
+        }
+        question.setDeleted(true);
+        questionRepository.save(question);
     }
 
     @Override

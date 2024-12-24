@@ -1,5 +1,6 @@
 package com.example.sourcebase.service.impl;
 
+import com.example.sourcebase.domain.Answer;
 import com.example.sourcebase.domain.dto.reqdto.AnswerReqDto;
 import com.example.sourcebase.domain.dto.resdto.AnswerResDTO;
 import com.example.sourcebase.exception.AppException;
@@ -61,9 +62,10 @@ public class AnswerServiceImpl implements IAnswerService {
     @Override
     @Transactional
     public void deleteAnswer(Long id) {
-        answerRepository.findById(id).ifPresentOrElse(answerRepository::delete, () -> {
-            throw new AppException(ErrorCode.ANSWER_NOT_FOUND);
-        });
+        Answer answer = answerRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ANSWER_NOT_FOUND));
+        answer.setDeleted(true);
+        answerRepository.save(answer);
     }
 
     @Override
