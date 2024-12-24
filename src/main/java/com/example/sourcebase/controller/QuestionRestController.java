@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -80,6 +79,21 @@ public class QuestionRestController {
                         .message(SuccessCode.GET_SUCCESSFUL.getMessage())
                         .timestamp(LocalDateTime.now())
                         .data(questionService.findAllQuestions(page, size, sortBy, asc))
+                        .build());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ResponseData<?>> search(@RequestParam String title,
+                                                  @RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "10") int size,
+                                                  @RequestParam(defaultValue = "id") String sortBy,
+                                                  @RequestParam(defaultValue = "true") boolean asc) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .data(questionService.findQuestionsByTitle(title, page, size, sortBy, asc))
                         .build());
     }
 }

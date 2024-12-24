@@ -66,4 +66,29 @@ public class CriteriaRestController {
         criteriaService.deleteCriterion(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseData<?>> getCriterionById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                        .data(criteriaService.getCriteriaById(id))
+                        .build());
+    }
+
+    @GetMapping("/{id}/questions")
+    public ResponseEntity<ResponseData<?>> getQuestionsByCriterionId(@PathVariable Long id,
+                                                                     @RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(defaultValue = "10") int size,
+                                                                     @RequestParam(defaultValue = "id") String sortBy,
+                                                                     @RequestParam(defaultValue = "true") boolean asc
+    ) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                        .data(criteriaService.findQuestionsByCriterionId(id, page, size, sortBy, asc))
+                        .build());
+    }
 }

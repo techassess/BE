@@ -81,6 +81,12 @@ public class QuestionServiceImpl implements IQuestionService {
     }
 
     @Override
+    public Page<QuestionResDTO> findQuestionsByTitle(String title, int page, int size, String sortBy, boolean asc) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(asc ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy));
+        return questionRepository.findAllByTitleContains(title, pageable).map(questionMapper::toQuestionResDTO);
+    }
+
+    @Override
     public Page<QuestionResDTO> getQuestionsByCriteriaId(Long criteriaId, int page, int size, String sortBy, boolean asc) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(asc ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy));
         return questionRepository.findAllByCriteria_Id(criteriaId, pageable).map(questionMapper::toQuestionResDTO);
