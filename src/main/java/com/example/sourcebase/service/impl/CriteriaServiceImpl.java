@@ -11,6 +11,7 @@ import com.example.sourcebase.mapper.QuestionMapper;
 import com.example.sourcebase.repository.ICriteriaRepository;
 import com.example.sourcebase.service.ICriteriaService;
 import com.example.sourcebase.util.ErrorCode;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
@@ -98,10 +99,20 @@ public class CriteriaServiceImpl implements ICriteriaService {
     }
 
     @Override
+    @Transactional
     public void deleteCriterion(Long id) {
-        criteriaRepository.findById(id).ifPresentOrElse(criteriaRepository::delete, () -> {
-            throw new AppException(ErrorCode.CRITERIA_NOT_FOUND);
-        });
-    }
+        Criteria criteria = criteriaRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
 
+        if (criteria.getQuestions() != null) {
+            criteria.getQuestions().forEach(question -> {
+                question.setDeleted(true);
+                if (question.getAnswers() != null) {
+                    question.getAnswers().forEach(answer -> answer.setDeleted(true));
+                }
+            });
+        }
+        criteria.setDeleted(true);
+        criteriaRepository.save(criteria);
+    }
 }

@@ -28,4 +28,7 @@ public class Question {
 
     @OneToMany(mappedBy = "question", fetch = FetchType.LAZY)
     List<Answer> answers;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 }
