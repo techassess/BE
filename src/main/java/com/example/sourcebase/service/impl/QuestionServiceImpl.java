@@ -3,6 +3,7 @@ package com.example.sourcebase.service.impl;
 import com.example.sourcebase.domain.Answer;
 import com.example.sourcebase.domain.Criteria;
 import com.example.sourcebase.domain.Question;
+import com.example.sourcebase.domain.dto.reqdto.AddQuestionReqDto;
 import com.example.sourcebase.domain.dto.reqdto.QuestionReqDto;
 import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import com.example.sourcebase.exception.AppException;
@@ -104,18 +105,18 @@ public class QuestionServiceImpl implements IQuestionService {
 
 
    @Transactional
-    public QuestionResDTO addQuestionAndAnswers(QuestionReqDto questionReqDto) {
-        Question question = questionMapper.toQuestion(questionReqDto);
+    public QuestionResDTO addQuestionAndAnswers(AddQuestionReqDto addQuestionReqDto) {
+        Question question = questionMapper.toQuestion(addQuestionReqDto);
 
-       if (questionReqDto.getCriteriaId() != null) {
-           Criteria criteria = criteriaRepository.findById(questionReqDto.getCriteriaId())
-                   .orElseThrow(() -> new RuntimeException("Criteria not found with id: " + questionReqDto.getCriteriaId()));
+       if (addQuestionReqDto.getCriteriaId() != null) {
+           Criteria criteria = criteriaRepository.findById(addQuestionReqDto.getCriteriaId())
+                   .orElseThrow(() -> new RuntimeException("Criteria not found with id: " + addQuestionReqDto.getCriteriaId()));
            question.setCriteria(criteria);
        }
        question = questionRepository.save(question);
        final Question finalQuestion = question;
 
-        List<Answer> answers = questionReqDto.getAnswers().stream()
+        List<Answer> answers = addQuestionReqDto.getAnswers().stream()
                 .map(answerReqDto -> {
                     Answer answerEntity = answerMapper.toEntity(answerReqDto);
                     answerEntity.setQuestion(finalQuestion);

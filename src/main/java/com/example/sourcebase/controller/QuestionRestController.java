@@ -1,5 +1,6 @@
 package com.example.sourcebase.controller;
 
+import com.example.sourcebase.domain.dto.reqdto.AddQuestionReqDto;
 import com.example.sourcebase.domain.dto.reqdto.QuestionReqDto;
 import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import com.example.sourcebase.service.IQuestionService;
@@ -51,12 +52,12 @@ public class QuestionRestController {
     }
 
    @PostMapping
-    public ResponseEntity<ResponseData<?>> addQuestionAndAnswers(@RequestBody QuestionReqDto questionReqDto) {
+    public ResponseEntity<ResponseData<?>> addQuestionAndAnswers(@RequestBody AddQuestionReqDto addQuestionReqDto) {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.CREATED.getCode())
                         .message(SuccessCode.CREATED.getMessage())
-                        .data(questionService.addQuestionAndAnswers(questionReqDto))
+                        .data(questionService.addQuestionAndAnswers(addQuestionReqDto))
                         .build());
     }
 
