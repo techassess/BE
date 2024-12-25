@@ -48,6 +48,16 @@ public class QuestionRestController {
                         .build());
     }
 
+    @GetMapping("/v2/{id}")
+    public ResponseEntity<ResponseData<?>> getQuestionById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                        .data(questionService.getQuestionById(id))
+                        .build());
+    }
+
     @PostMapping
     public ResponseEntity<ResponseData<?>> addQuestion(@RequestBody QuestionReqDto questionReqDto) {
         return ResponseEntity.ok(
@@ -60,7 +70,7 @@ public class QuestionRestController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateQuestion(@PathVariable Long id, @Valid @RequestBody QuestionReqDto questionReqDto,
-                                                          BindingResult bindingResult) {
+                                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getAllErrors().forEach(error -> {
