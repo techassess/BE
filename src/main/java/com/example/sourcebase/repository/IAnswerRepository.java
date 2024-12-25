@@ -19,6 +19,10 @@ public interface IAnswerRepository extends JpaRepository<Answer, Long> {
     List<Answer> findAll();
 
     @Override
+    @Query("SELECT a FROM Answer a WHERE a.isDeleted = false")
+    Page<Answer> findAll(Pageable pageable);
+
+    @Override
     @Query("SELECT a FROM Answer a WHERE a.id = :id AND a.isDeleted = false")
     Optional<Answer> findById(@Param("id") Long id);
 }
