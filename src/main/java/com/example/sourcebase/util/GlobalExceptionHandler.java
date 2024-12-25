@@ -1,5 +1,6 @@
 package com.example.sourcebase.util;
 
+import com.example.sourcebase.exception.AppException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -16,7 +17,7 @@ import java.util.NoSuchElementException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    ResponseData error = new ResponseData();
+    ResponseData<?> error = new ResponseData<>();
 
     @ExceptionHandler({
             NoSuchElementException.class,
@@ -24,23 +25,30 @@ public class GlobalExceptionHandler {
             IllegalArgumentException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ResponseData> handlerValidationException(Exception ex, WebRequest request) {
+    public ResponseEntity<ResponseData<?>> handlerValidationException(Exception ex, WebRequest request) {
         error.setCode(ErrorCode.USER_NOT_FOUND.getCode());
         error.setTimestamp(LocalDateTime.now());
         error.setError(ex.getMessage());
         error.setPath(request.getDescription(false).replace("uri=", ""));
         String message = ex.getMessage();
-        if (ex instanceof NoSuchElementException) {
-            error.setError("Data Invalid");
-            error.setCode(ErrorCode.USER_NOT_FOUND.getCode());
-            error.setMessage(ErrorCode.USER_NOT_FOUND.getMessage());
-        } else if (ex instanceof RuntimeException) {
-            error.setError("PathVariable Invalid");
-            error.setMessage(message);
-        } else if (ex instanceof IllegalArgumentException) {
-            error.setError("ILLEGAL ARGUMENT");
-            error.setMessage(ErrorCode.ILLEGAL_ARGUMENT.getMessage());
-            error.setCode(ErrorCode.ILLEGAL_ARGUMENT.getCode());
+        switch (ex) {
+            case NoSuchElementException noSuchElementException -> {
+                error.setError("Data Invalid");
+                error.setCode(ErrorCode.USER_NOT_FOUND.getCode());
+                error.setMessage(ErrorCode.USER_NOT_FOUND.getMessage());
+            }
+            case AppException appException -> error.setCode(appException.getErrorCode().getCode());
+            case IllegalArgumentException illegalArgumentException -> {
+                error.setError("ILLEGAL ARGUMENT");
+                error.setMessage(ErrorCode.ILLEGAL_ARGUMENT.getMessage());
+                error.setCode(ErrorCode.ILLEGAL_ARGUMENT.getCode());
+            }
+            case RuntimeException runtimeException -> {
+                error.setError("PathVariable Invalid");
+                error.setMessage(message);
+            }
+            default -> {
+            }
         }
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
