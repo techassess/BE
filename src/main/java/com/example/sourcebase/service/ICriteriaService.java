@@ -10,6 +10,7 @@ import java.util.List;
 public interface ICriteriaService {
     List<CriteriaResDTO> getAllCriterias();
 
+
     Page<CriteriaResDTO> getAllCriteria(int page, int size, String sortBy, boolean asc);
 
     CriteriaResDTO getCriteriaById(Long id);
@@ -19,6 +20,7 @@ public interface ICriteriaService {
     CriteriaResDTO updateCriterion(Long id, CriteriaReqDTO criteriaReqDTO);
 
     void deleteCriterion(Long id);
+    void validateUniqueTitle(CriteriaReqDTO criteriaReqDTO);
 
     Page<QuestionResDTO> findQuestionsByCriterionId(Long criteriaId, int page, int size, String sortBy, boolean asc);
 

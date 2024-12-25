@@ -59,7 +59,7 @@ public class QuestionRestController {
                         .build());
     }
    @PostMapping
-    public ResponseEntity<ResponseData<?>> addQuestionAndAnswers(@RequestBody AddQuestionReqDto addQuestionReqDto) {
+    public ResponseEntity<ResponseData<?>> addQuestionAndAnswers(@Valid @RequestBody  AddQuestionReqDto addQuestionReqDto) {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.CREATED.getCode())
