@@ -69,22 +69,11 @@ public class QuestionRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateQuestion(@PathVariable Long id, @Valid @RequestBody QuestionReqDto questionReqDto,
-                                            BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getAllErrors().forEach(error -> {
-                String nameError = ((FieldError) error).getField();
-                String messageError = error.getDefaultMessage();
-                errors.put(nameError, messageError);
-            });
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-        }
-
+    public ResponseEntity<?> updateQuestion(@PathVariable Long id, @Valid @RequestBody QuestionReqDto questionReqDto) {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.UPDATED.getCode())
-                        .message(SuccessCode.UPDATE_SUCCESSFUL.getMessage())
+                        .message(SuccessCode.UPDATED.getMessage())
                         .data(questionService.updateQuestion(id, questionReqDto))
                         .build());
     }
