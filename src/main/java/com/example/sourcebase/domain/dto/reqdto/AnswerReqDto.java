@@ -1,5 +1,6 @@
 package com.example.sourcebase.domain.dto.reqdto;
 
+import com.example.sourcebase.domain.Question;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -17,17 +18,17 @@ import java.io.Serializable;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AnswerReqDto implements Serializable {
+    @NotNull(message = "ID cannot be null")
+    Long id;
+
     @NotBlank(message = "Title cannot be blank")
     @Pattern(
-            regexp = "[A-Za-zÀ-ỹ\\\\s]+",
-            message = "Title can only contain letters and spaces"
+            regexp = "[A-Za-zÀ-ỹ0-9\\s\\p{Punct}]+",
+            message = "Title can contain letters, numbers, spaces, and all special characters"
     )
     String title;
 
     @NotNull(message = "Value cannot be null")
     @Positive
-    int value;
-
-    @NotNull(message = "Criteria ID cannot be null")
-    Long questionId;
+    Integer value;
 }

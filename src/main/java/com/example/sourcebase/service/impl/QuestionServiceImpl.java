@@ -1,10 +1,18 @@
 package com.example.sourcebase.service.impl;
 
+import com.example.sourcebase.domain.Answer;
+import com.example.sourcebase.domain.Criteria;
 import com.example.sourcebase.domain.Question;
+import com.example.sourcebase.domain.dto.reqdto.AddQuestionReqDto;
+import com.example.sourcebase.domain.dto.reqdto.AnswerReqDto;
+
 import com.example.sourcebase.domain.dto.reqdto.QuestionReqDto;
 import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import com.example.sourcebase.exception.AppException;
+import com.example.sourcebase.mapper.AnswerMapper;
 import com.example.sourcebase.mapper.QuestionMapper;
+import com.example.sourcebase.repository.IAnswerRepository;
+import com.example.sourcebase.repository.ICriteriaRepository;
 import com.example.sourcebase.repository.IQuestionRepository;
 import com.example.sourcebase.service.IQuestionService;
 import com.example.sourcebase.util.ErrorCode;
@@ -18,7 +26,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +37,10 @@ import java.util.stream.Collectors;
 public class QuestionServiceImpl implements IQuestionService {
 
     IQuestionRepository questionRepository;
+    ICriteriaRepository criteriaRepository;
     QuestionMapper questionMapper = QuestionMapper.INSTANCE;
+    AnswerMapper answerMapper = AnswerMapper.INSTANCE;
+    IAnswerRepository answerRepository;
 
     public List<QuestionResDTO> getAllQuestionByCriteriaID(Long criteriaId) {
         List<Question> questionResDTOs = questionRepository.findAllQuestionByCriteriaId(criteriaId);
@@ -50,19 +63,33 @@ public class QuestionServiceImpl implements IQuestionService {
                 .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
     }
 
-    @Override
+    /* @Override
     @Transactional
     public QuestionResDTO addQuestion(QuestionReqDto questionReqDto) {
         return questionMapper.toQuestionResDTO(questionRepository.save(questionMapper.toQuestion(questionReqDto)));
     }
 
+     */
+
     @Override
     @Transactional
     public QuestionResDTO updateQuestion(Long id, QuestionReqDto questionReqDto) {
+        List<AnswerReqDto> answers = questionReqDto.getAnswers();
+
         return questionRepository.findById(id)
                 .map(question -> {
                     question = questionMapper.partialUpdate(questionReqDto, question);
-                    return questionMapper.toQuestionResDTO(questionRepository.save(question));
+                    QuestionResDTO qt = questionMapper.toQuestionResDTO(questionRepository.save(question));
+
+                    for (AnswerReqDto answer : answers) {
+                        Answer ans = answerRepository.findById(answer.getId()).orElseThrow(() -> new AppException(ErrorCode.ANSWER_NOT_FOUND));
+                        ans.setQuestion(question);
+                        ans.setTitle(answer.getTitle());
+                        ans.setValue(answer.getValue());
+                        answerRepository.save(ans);
+                    }
+
+                    return qt;
                 })
                 .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
     }
@@ -90,5 +117,30 @@ public class QuestionServiceImpl implements IQuestionService {
     public Page<QuestionResDTO> getQuestionsByCriteriaId(Long criteriaId, int page, int size, String sortBy, boolean asc) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(asc ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy));
         return questionRepository.findAllByCriteria_Id(criteriaId, pageable).map(questionMapper::toQuestionResDTO);
+    }
+
+
+   @Transactional
+    public QuestionResDTO addQuestionAndAnswers(AddQuestionReqDto addQuestionReqDto) {
+        Question question = questionMapper.toQuestion(addQuestionReqDto);
+
+       if (addQuestionReqDto.getCriteriaId() != null) {
+           Criteria criteria = criteriaRepository.findById(addQuestionReqDto.getCriteriaId())
+                   .orElseThrow(() -> new RuntimeException("Criteria not found with id: " + addQuestionReqDto.getCriteriaId()));
+           question.setCriteria(criteria);
+       }
+       question = questionRepository.save(question);
+       final Question finalQuestion = question;
+
+        List<Answer> answers = addQuestionReqDto.getAnswers().stream()
+                .map(answerReqDto -> {
+                    Answer answerEntity = answerMapper.toEntity(answerReqDto);
+                    answerEntity.setQuestion(finalQuestion);
+                    return answerEntity;
+                })
+                .collect(Collectors.toList());
+        question.setAnswers(answers);
+        answerRepository.saveAll(answers);
+        return questionMapper.toQuestionResDTO(question);
     }
 }

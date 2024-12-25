@@ -1,8 +1,10 @@
 package com.example.sourcebase.controller;
 
+import com.example.sourcebase.domain.dto.reqdto.AddQuestionReqDto;
 import com.example.sourcebase.domain.dto.reqdto.QuestionReqDto;
 import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import com.example.sourcebase.service.IQuestionService;
+import com.example.sourcebase.service.IUserService;
 import com.example.sourcebase.util.ErrorCode;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
@@ -47,34 +49,32 @@ public class QuestionRestController {
                         .data(questions)
                         .build());
     }
-
-    @PostMapping
-    public ResponseEntity<ResponseData<?>> addQuestion(@RequestBody QuestionReqDto questionReqDto) {
+    @GetMapping("/v2/{id}")
+    public ResponseEntity<ResponseData<?>> getQuestionById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                        .data(questionService.getQuestionById(id))
+                        .build());
+    }
+   @PostMapping
+    public ResponseEntity<ResponseData<?>> addQuestionAndAnswers(@RequestBody AddQuestionReqDto addQuestionReqDto) {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.CREATED.getCode())
                         .message(SuccessCode.CREATED.getMessage())
-                        .data(questionService.addQuestion(questionReqDto))
+                        .data(questionService.addQuestionAndAnswers(addQuestionReqDto))
                         .build());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateQuestion(@PathVariable Long id, @Valid @RequestBody QuestionReqDto questionReqDto,
-                                                          BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getAllErrors().forEach(error -> {
-                String nameError = ((FieldError) error).getField();
-                String messageError = error.getDefaultMessage();
-                errors.put(nameError, messageError);
-            });
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-        }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateQuestion(@PathVariable Long id, @Valid @RequestBody QuestionReqDto questionReqDto) {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.UPDATED.getCode())
-                        .message(SuccessCode.UPDATE_SUCCESSFUL.getMessage())
+                        .message(SuccessCode.UPDATED.getMessage())
                         .data(questionService.updateQuestion(id, questionReqDto))
                         .build());
     }

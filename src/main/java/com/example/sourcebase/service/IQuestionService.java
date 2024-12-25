@@ -1,5 +1,8 @@
 package com.example.sourcebase.service;
 
+import com.example.sourcebase.domain.Question;
+import com.example.sourcebase.domain.dto.reqdto.AddQuestionReqDto;
+import com.example.sourcebase.domain.dto.reqdto.AnswerReqDto;
 import com.example.sourcebase.domain.dto.reqdto.QuestionReqDto;
 import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import org.springframework.data.domain.Page;
@@ -13,11 +16,12 @@ public interface IQuestionService {
 
     QuestionResDTO getQuestionById(Long id);
 
-    QuestionResDTO addQuestion(QuestionReqDto questionReqDto);
+    //QuestionResDTO addQuestion(QuestionReqDto questionReqDto);
 
     QuestionResDTO updateQuestion(Long id, QuestionReqDto questionReqDto);
 
     void deleteQuestion(Long id);
+     QuestionResDTO addQuestionAndAnswers(AddQuestionReqDto addQuestionReqDto);
 
     Page<QuestionResDTO> getQuestionsByCriteriaId(Long criteriaId, int page, int size, String sortBy, boolean asc);
 

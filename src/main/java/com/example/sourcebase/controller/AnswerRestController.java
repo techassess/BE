@@ -6,15 +6,10 @@ import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/answers")
@@ -55,18 +50,7 @@ public class AnswerRestController {
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<?> updateAnswer(@PathVariable Long id, @Valid @RequestBody AnswerReqDto answerReqDto,
-                                          BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getAllErrors().forEach(error -> {
-                String nameError = ((FieldError) error).getField();
-                String messageError = error.getDefaultMessage();
-                errors.put(nameError, messageError);
-            });
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-        }
-
+    public ResponseEntity<?> updateAnswer(@PathVariable Long id, @Valid @RequestBody AnswerReqDto answerReqDto) {
         return ResponseEntity.ok(ResponseData.builder()
                 .code(SuccessCode.UPDATED.getCode())
                 .message(SuccessCode.UPDATED.getMessage())
@@ -86,6 +70,16 @@ public class AnswerRestController {
                 .code(SuccessCode.GET_SUCCESSFUL.getCode())
                 .message(SuccessCode.GET_SUCCESSFUL.getMessage())
                 .data(answerService.getAllAnswers(page, size, sortBy, asc))
+                .build()
+        );
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getAnswerById(@PathVariable Long id) {
+        return ResponseEntity.ok(ResponseData.builder()
+                .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                .data(answerService.getAnswerById(id))
                 .build()
         );
     }

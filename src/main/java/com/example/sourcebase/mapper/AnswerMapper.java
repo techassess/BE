@@ -11,6 +11,7 @@ public interface AnswerMapper {
     AnswerMapper INSTANCE = Mappers.getMapper(AnswerMapper.class);
 
     Answer toEntity(AnswerReqDto answerReqDto);
+    Answer toEntity(Long answerId);
 
     AnswerResDTO toAnswerResDto(Answer answer);
 
