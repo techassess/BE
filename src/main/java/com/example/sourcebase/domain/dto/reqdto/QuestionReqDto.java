@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.util.List;
@@ -17,19 +18,22 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class QuestionReqDto implements Serializable {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class QuestionReqDto {
     @NotBlank(message = "Title cannot be blank")
     @Pattern(
             regexp = "[A-Za-zÀ-ỹ0-9\\s\\p{Punct}]+",
             message = "Title can contain letters, numbers, spaces, and all special characters"
     )
-    private String title;
+    String title;
 
     @NotNull(message = "Point cannot be null")
     @Min(value = 1, message = "Point must be 1 or greater")
-    private Integer point;
+    Integer point;
+
+
 
     @NotNull(message = "Answer cannot be null")
     @NotEmpty(message = "Answers cannot be empty")
-    private List<AnswerReqDto> answers;
+    List<AnswerReqDto> answers;
 }
