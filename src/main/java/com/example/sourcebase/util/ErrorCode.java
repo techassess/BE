@@ -2,12 +2,8 @@ package com.example.sourcebase.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
-
-import javax.tools.Diagnostic;
 
 @Getter
 @AllArgsConstructor
@@ -37,7 +33,9 @@ public enum ErrorCode {
     ANSWER_NOT_FOUND(40401, "Answer not found", HttpStatus.NOT_FOUND),
     ANSWER_EXISTED(40901, "Answer already existed", HttpStatus.CONFLICT),
 
-    CRITERIA_EXISTED(40902, "Criteria already existed", HttpStatus.CONFLICT),
+    CRITERIA_EXISTED(40902, "Criteria title already existed", HttpStatus.CONFLICT),
+
+    SUM_POINT_INVALID(40903, "Sum point of parent must equal sum point of children elements", HttpStatus.CONFLICT),
     ;
     int code;
     String message;
