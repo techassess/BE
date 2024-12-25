@@ -26,4 +26,7 @@ public interface ICriteriaRepository extends JpaRepository<Criteria, Long> {
     Optional<Criteria> findById(@Param("id") Long id);
 
     boolean existsByTitle(String title);
+
+    @Query("SELECT COUNT(c) > 0 FROM Criteria c WHERE lower(c.title) = lower(:title) AND c.isDeleted = false")
+    boolean existsByTitleIgnoreCase(String title);
 }
