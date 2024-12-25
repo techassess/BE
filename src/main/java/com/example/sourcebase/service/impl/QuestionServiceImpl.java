@@ -4,6 +4,8 @@ import com.example.sourcebase.domain.Answer;
 import com.example.sourcebase.domain.Criteria;
 import com.example.sourcebase.domain.Question;
 import com.example.sourcebase.domain.dto.reqdto.AddQuestionReqDto;
+import com.example.sourcebase.domain.dto.reqdto.AnswerReqDto;
+
 import com.example.sourcebase.domain.dto.reqdto.QuestionReqDto;
 import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import com.example.sourcebase.exception.AppException;
@@ -24,7 +26,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,10 +74,22 @@ public class QuestionServiceImpl implements IQuestionService {
     @Override
     @Transactional
     public QuestionResDTO updateQuestion(Long id, QuestionReqDto questionReqDto) {
+        List<AnswerReqDto> answers = questionReqDto.getAnswers();
+
         return questionRepository.findById(id)
                 .map(question -> {
                     question = questionMapper.partialUpdate(questionReqDto, question);
-                    return questionMapper.toQuestionResDTO(questionRepository.save(question));
+                    QuestionResDTO qt = questionMapper.toQuestionResDTO(questionRepository.save(question));
+
+                    for (AnswerReqDto answer : answers) {
+                        Answer ans = answerRepository.findById(answer.getId()).orElseThrow(() -> new AppException(ErrorCode.ANSWER_NOT_FOUND));
+                        ans.setQuestion(question);
+                        ans.setTitle(answer.getTitle());
+                        ans.setValue(answer.getValue());
+                        answerRepository.save(ans);
+                    }
+
+                    return qt;
                 })
                 .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
     }
