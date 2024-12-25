@@ -106,13 +106,13 @@ public class CriteriaServiceImpl implements ICriteriaService {
     public CriteriaResDTO updateCriterion(Long id, CriteriaReqDTO criteriaReqDTO) {
         return criteriaRepository.findById(id)
                 .map(criteria -> {
-                    criteria = criteriaMapper.partialUpdate(criteriaReqDTO, criteria);
                     if (criteriaReqDTO.getTitle() != null
-                            && !criteriaReqDTO.getTitle().equals(criteria.getTitle())
+                            && !criteriaReqDTO.getTitle().equalsIgnoreCase(criteria.getTitle())
                             && criteriaRepository.existsByTitleIgnoreCase(criteriaReqDTO.getTitle())
                     ) {
                         throw new AppException(ErrorCode.CRITERIA_EXISTED);
                     }
+                    criteria = criteriaMapper.partialUpdate(criteriaReqDTO, criteria);
                     return criteriaMapper.toCriteriaResDTO(criteriaRepository.save(criteria));
                 })
                 .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
