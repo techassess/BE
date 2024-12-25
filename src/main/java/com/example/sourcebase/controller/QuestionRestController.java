@@ -29,7 +29,6 @@ import java.util.Map;
 public class QuestionRestController {
     IQuestionService questionService;
 
-
     @GetMapping("/{criteriaId}")
     public ResponseEntity<ResponseData<?>> getAllQuestionsByCriteriaID(@PathVariable Long criteriaId) {
 
@@ -50,7 +49,15 @@ public class QuestionRestController {
                         .data(questions)
                         .build());
     }
-
+    @GetMapping("/v2/{id}")
+    public ResponseEntity<ResponseData<?>> getQuestionById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                        .data(questionService.getQuestionById(id))
+                        .build());
+    }
    @PostMapping
     public ResponseEntity<ResponseData<?>> addQuestionAndAnswers(@RequestBody AddQuestionReqDto addQuestionReqDto) {
         return ResponseEntity.ok(

@@ -74,4 +74,14 @@ public class AnswerRestController {
         );
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getAnswerById(@PathVariable Long id) {
+        return ResponseEntity.ok(ResponseData.builder()
+                .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                .data(answerService.getAnswerById(id))
+                .build()
+        );
+    }
+
 }
