@@ -34,6 +34,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
     CriteriaMapper criteriaMapper = CriteriaMapper.INSTANCE;
     QuestionMapper questionMapper = QuestionMapper.INSTANCE;
 
+
     @Override
     public List<CriteriaResDTO> getAllCriterias() {
         List<Criteria> listCriteria = criteriaRepository.findAll();
@@ -75,6 +76,13 @@ public class CriteriaServiceImpl implements ICriteriaService {
     public Page<CriteriaResDTO> getAllCriteria(int page, int size, String sortBy, boolean asc) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(asc ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy));
         return criteriaRepository.findAll(pageable).map(criteriaMapper::toCriteriaResDTO);
+    }
+
+    @Override
+    public void validateUniqueTitle(CriteriaReqDTO criteriaReqDTO) {
+        if (criteriaRepository.existsByTitle(criteriaReqDTO.getTitle())) {
+            throw new IllegalArgumentException("Tiêu đề đã tồn tại!");
+        }
     }
 
     @Override
@@ -133,4 +141,5 @@ public class CriteriaServiceImpl implements ICriteriaService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(asc ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy));
         return questionRepository.findAllByCriteria_Id(criteriaId, pageable).map(questionMapper::toQuestionResDTO);
     }
+
 }
