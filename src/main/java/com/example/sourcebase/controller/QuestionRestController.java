@@ -1,8 +1,10 @@
 package com.example.sourcebase.controller;
 
+import com.example.sourcebase.domain.dto.reqdto.AddQuestionReqDto;
 import com.example.sourcebase.domain.dto.reqdto.QuestionReqDto;
 import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import com.example.sourcebase.service.IQuestionService;
+import com.example.sourcebase.service.IUserService;
 import com.example.sourcebase.util.ErrorCode;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
@@ -27,6 +29,7 @@ import java.util.Map;
 public class QuestionRestController {
     IQuestionService questionService;
 
+
     @GetMapping("/{criteriaId}")
     public ResponseEntity<ResponseData<?>> getAllQuestionsByCriteriaID(@PathVariable Long criteriaId) {
 
@@ -48,15 +51,16 @@ public class QuestionRestController {
                         .build());
     }
 
-    @PostMapping
-    public ResponseEntity<ResponseData<?>> addQuestion(@RequestBody QuestionReqDto questionReqDto) {
+   @PostMapping
+    public ResponseEntity<ResponseData<?>> addQuestionAndAnswers(@RequestBody AddQuestionReqDto addQuestionReqDto) {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.CREATED.getCode())
                         .message(SuccessCode.CREATED.getMessage())
-                        .data(questionService.addQuestion(questionReqDto))
+                        .data(questionService.addQuestionAndAnswers(addQuestionReqDto))
                         .build());
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateQuestion(@PathVariable Long id, @Valid @RequestBody QuestionReqDto questionReqDto) {
