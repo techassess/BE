@@ -60,52 +60,35 @@ public class QuestionServiceImpl implements IQuestionService {
                 .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
     }
 
-    /* @Override
-    @Transactional
-    public QuestionResDTO addQuestion(QuestionReqDto questionReqDto) {
-        return questionMapper.toQuestionResDTO(questionRepository.save(questionMapper.toQuestion(questionReqDto)));
-    }
-
-     */
-
     @Override
     @Transactional
     public QuestionResDTO updateQuestion(Long id, QuestionReqDto questionReqDto) {
-        List<AnswerReqDto> answers = questionReqDto.getAnswers();
-
         Question currentQuestion = questionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
+
         Criteria currentCriteria = criteriaRepository.findById(currentQuestion.getCriteria().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
 
-        // validate sum of point of answers: sum of point of answers must equal point of question
-        int sumPoint = answers.stream()
-                .mapToInt(AnswerReqDto::getValue)
-                .sum();
-        if (sumPoint != questionReqDto.getPoint()) {
-            throw new AppException(ErrorCode.SUM_POINT_INVALID);
-        }
+        Question updatedQuestion = questionMapper.partialUpdate(questionReqDto, currentQuestion);
+        questionRepository.save(updatedQuestion);
 
-        // update criteria point
-        currentCriteria.setPoint(currentCriteria.getPoint() - currentQuestion.getPoint() + questionReqDto.getPoint());
+        int totalPoints = questionRepository.findByCriteriaId(currentCriteria.getId()).stream()
+                .mapToInt(Question::getPoint)
+                .sum();
+
+        currentCriteria.setPoint(totalPoints);
         criteriaRepository.save(currentCriteria);
 
-        return questionRepository.findById(id)
-                .map(question -> {
-                    question = questionMapper.partialUpdate(questionReqDto, question);
-                    QuestionResDTO qt = questionMapper.toQuestionResDTO(questionRepository.save(question));
+        for (AnswerReqDto answer : questionReqDto.getAnswers()) {
+            Answer ans = answerRepository.findById(answer.getId())
+                    .orElseThrow(() -> new AppException(ErrorCode.ANSWER_NOT_FOUND));
 
-                    for (AnswerReqDto answer : answers) {
-                        Answer ans = answerRepository.findById(answer.getId()).orElseThrow(() -> new AppException(ErrorCode.ANSWER_NOT_FOUND));
-                        ans.setQuestion(question);
-                        ans.setTitle(answer.getTitle());
-                        ans.setValue(answer.getValue()); // update point of answer
-                        answerRepository.save(ans);
-                    }
-
-                    return qt;
-                })
-                .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
+            ans.setQuestion(updatedQuestion);
+            ans.setTitle(answer.getTitle());
+            ans.setValue(answer.getValue());
+            answerRepository.save(ans);
+        }
+        return questionMapper.toQuestionResDTO(updatedQuestion);
     }
 
     @Override
@@ -142,9 +125,6 @@ public class QuestionServiceImpl implements IQuestionService {
         int sumPoint = addQuestionReqDto.getAnswers().stream()
                 .mapToInt(AnswerReqDto::getValue)
                 .sum();
-        if (sumPoint != question.getPoint()) {
-            throw new AppException(ErrorCode.SUM_POINT_INVALID);
-        }
 
         if (addQuestionReqDto.getCriteriaId() != null) {
             Criteria criteria = criteriaRepository.findById(addQuestionReqDto.getCriteriaId())

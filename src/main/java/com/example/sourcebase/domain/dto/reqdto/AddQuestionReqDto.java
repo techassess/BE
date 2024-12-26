@@ -21,8 +21,8 @@ import java.util.List;
 public class AddQuestionReqDto {
     @NotBlank(message = "Title cannot be blank")
     @Pattern(
-            regexp = "[A-Za-zÀ-ỹ\\\\s]+",
-            message = "Title can only contain letters and spaces"
+            regexp = "[A-Za-zÀ-ỹ0-9\\s\\p{Punct}]+",
+            message = "Title can contain letters, numbers, spaces, and all special characters"
     )
     String title;
 

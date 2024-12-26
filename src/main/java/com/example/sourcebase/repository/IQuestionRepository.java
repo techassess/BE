@@ -28,4 +28,7 @@ public interface IQuestionRepository extends JpaRepository<Question, Long> {
 
     @Query("SELECT q FROM Question q WHERE q.title LIKE %:title% AND q.isDeleted = false")
     Page<Question> findAllByTitleContains(String title, Pageable pageable);
+
+    List<Question> findByCriteriaId(Long criteriaId);
+
 }
