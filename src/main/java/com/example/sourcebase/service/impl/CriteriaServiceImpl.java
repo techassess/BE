@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,9 +88,15 @@ public class CriteriaServiceImpl implements ICriteriaService {
 
     @Override
     public CriteriaResDTO getCriteriaById(Long id) {
-        return criteriaRepository.findById(id)
+        CriteriaResDTO criteriaResDTO = criteriaRepository.findById(id)
                 .map(criteriaMapper::toCriteriaResDTO)
                 .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
+
+        criteriaResDTO.setQuestions(criteriaResDTO.getQuestions().stream()
+                .filter(question -> !question.isDeleted())
+                .collect(Collectors.toList()));
+
+        return criteriaResDTO;
     }
 
     @Override
