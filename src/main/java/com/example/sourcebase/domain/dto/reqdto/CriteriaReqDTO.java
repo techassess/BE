@@ -23,7 +23,5 @@ public class CriteriaReqDTO {
     )
     String title;
 
-    @NotNull(message = "Point cannot be null")
-    @Min(value = 1, message = "Point must be 1 or greater")
     Integer point;
 }

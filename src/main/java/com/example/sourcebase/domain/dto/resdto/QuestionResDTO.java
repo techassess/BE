@@ -18,5 +18,6 @@ public class QuestionResDTO {
     Long id;
     String title;
     int point;
+    boolean isDeleted = false;
     List<AnswerResDTO> answers;
 }
