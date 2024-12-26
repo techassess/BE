@@ -94,15 +94,31 @@ public class CriteriaServiceImpl implements ICriteriaService {
 
     @Override
     public CriteriaResDTO addCriterion(CriteriaReqDTO criteriaReqDTO) {
-        Criteria criteria = criteriaMapper.toEntity(criteriaReqDTO);
-        return criteriaMapper.toCriteriaResDTO(criteriaRepository.save(criteria));
+        Criteria newCriteria = criteriaMapper.toEntity(criteriaReqDTO);
+        if (criteriaRepository.existsByTitleIgnoreCase(newCriteria.getTitle())) {
+            throw new AppException(ErrorCode.CRITERIA_EXISTED);
+        }
+
+        return criteriaMapper.toCriteriaResDTO(criteriaRepository.save(newCriteria));
     }
 
     @Override
     public CriteriaResDTO updateCriterion(Long id, CriteriaReqDTO criteriaReqDTO) {
         return criteriaRepository.findById(id)
                 .map(criteria -> {
+                    if (criteriaReqDTO.getTitle() != null
+                            && !criteriaReqDTO.getTitle().equalsIgnoreCase(criteria.getTitle())
+                            && criteriaRepository.existsByTitleIgnoreCase(criteriaReqDTO.getTitle())
+                    ) {
+                        throw new AppException(ErrorCode.CRITERIA_EXISTED);
+                    }
                     criteria = criteriaMapper.partialUpdate(criteriaReqDTO, criteria);
+                    if (criteriaReqDTO.getTitle() != null
+                            && !criteriaReqDTO.getTitle().equals(criteria.getTitle())
+                            && criteriaRepository.existsByTitleIgnoreCase(criteriaReqDTO.getTitle())
+                    ) {
+                        throw new AppException(ErrorCode.CRITERIA_EXISTED);
+                    }
                     return criteriaMapper.toCriteriaResDTO(criteriaRepository.save(criteria));
                 })
                 .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));

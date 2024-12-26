@@ -57,6 +57,7 @@ public class CriteriaRestController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCriterion(@PathVariable Long id, @Valid @RequestBody CriteriaReqDTO criteriaReqDTO) {
+
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.UPDATED.getCode())
