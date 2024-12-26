@@ -125,9 +125,6 @@ public class QuestionServiceImpl implements IQuestionService {
         int sumPoint = addQuestionReqDto.getAnswers().stream()
                 .mapToInt(AnswerReqDto::getValue)
                 .sum();
-        if (sumPoint != question.getPoint()) {
-            throw new AppException(ErrorCode.SUM_POINT_INVALID);
-        }
 
         if (addQuestionReqDto.getCriteriaId() != null) {
             Criteria criteria = criteriaRepository.findById(addQuestionReqDto.getCriteriaId())
