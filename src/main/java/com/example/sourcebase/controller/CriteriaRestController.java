@@ -31,7 +31,7 @@ public class CriteriaRestController {
 
     @PostMapping
     public ResponseEntity<ResponseData<?>> addCriterion( @Valid @RequestBody CriteriaReqDTO criteriaReqDTO) {
-        criteriaService.validateUniqueTitle(criteriaReqDTO);
+//        criteriaService.validateUniqueTitle(criteriaReqDTO);
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.CREATED.getCode())
