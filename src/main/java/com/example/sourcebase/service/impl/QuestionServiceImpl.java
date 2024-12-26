@@ -73,6 +73,7 @@ public class QuestionServiceImpl implements IQuestionService {
         questionRepository.save(updatedQuestion);
 
         int totalPoints = questionRepository.findByCriteriaId(currentCriteria.getId()).stream()
+                .filter(q -> !q.isDeleted())
                 .mapToInt(Question::getPoint)
                 .sum();
 
@@ -97,11 +98,25 @@ public class QuestionServiceImpl implements IQuestionService {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
 
+        Long criteriaID = question.getCriteria().getId();
+
         if (question.getAnswers() != null) {
             question.getAnswers().forEach(answer -> answer.setDeleted(true));
         }
+
         question.setDeleted(true);
         questionRepository.save(question);
+
+        Criteria currentCriteria = criteriaRepository.findById(criteriaID)
+                .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
+
+        int totalPoints = questionRepository.findByCriteriaId(currentCriteria.getId()).stream()
+                .filter(q -> !q.isDeleted())
+                .mapToInt(Question::getPoint)
+                .sum();
+
+        currentCriteria.setPoint(totalPoints);
+        criteriaRepository.save(currentCriteria);
     }
 
     @Override
