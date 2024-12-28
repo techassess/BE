@@ -37,8 +37,6 @@ public class Assess {
 
     int totalPoint;
 
-
-
     @OneToMany(mappedBy = "assess", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<AssessDetail> assessDetails;
 }
