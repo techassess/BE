@@ -1,6 +1,7 @@
 package com.example.sourcebase.service.impl;
 
 import com.example.sourcebase.domain.Criteria;
+import com.example.sourcebase.domain.DepartmentCriterias;
 import com.example.sourcebase.domain.Question;
 import com.example.sourcebase.domain.dto.reqdto.CriteriaReqDTO;
 import com.example.sourcebase.domain.dto.resdto.AnswerResDTO;
@@ -10,6 +11,7 @@ import com.example.sourcebase.exception.AppException;
 import com.example.sourcebase.mapper.CriteriaMapper;
 import com.example.sourcebase.mapper.QuestionMapper;
 import com.example.sourcebase.repository.ICriteriaRepository;
+import com.example.sourcebase.repository.IDepartmentCriteriasRepository;
 import com.example.sourcebase.repository.IQuestionRepository;
 import com.example.sourcebase.service.ICriteriaService;
 import com.example.sourcebase.util.ErrorCode;
@@ -22,7 +24,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
 
     ICriteriaRepository criteriaRepository;
     IQuestionRepository questionRepository;
+    IDepartmentCriteriasRepository departmentCriteriasRepository;
     CriteriaMapper criteriaMapper = CriteriaMapper.INSTANCE;
     QuestionMapper questionMapper = QuestionMapper.INSTANCE;
 
@@ -127,6 +129,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
     }
 
     @Override
+    @Transactional
     public CriteriaResDTO addCriterion(CriteriaReqDTO criteriaReqDTO) {
         Criteria newCriteria = criteriaMapper.toEntity(criteriaReqDTO);
         if (criteriaRepository.existsByTitleIgnoreCase(newCriteria.getTitle())) {
@@ -137,6 +140,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
     }
 
     @Override
+    @Transactional
     public CriteriaResDTO updateCriterion(Long id, CriteriaReqDTO criteriaReqDTO) {
         return criteriaRepository.findById(id)
                 .map(criteria -> {
@@ -174,6 +178,23 @@ public class CriteriaServiceImpl implements ICriteriaService {
         }
         criteria.setDeleted(true);
         criteriaRepository.save(criteria);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCriterionByCriteriaIdAndDepartmentId(Long criteriaId, Long departmentId) {
+        List<DepartmentCriterias> dcs = departmentCriteriasRepository.findByCriteria_IdAndDepartment_Id(criteriaId, departmentId);
+        System.out.println(criteriaId + " " + departmentId);
+        if (dcs != null && !dcs.isEmpty()) {
+            dcs.forEach(dc -> {
+                dc.getCriteria().getQuestions().forEach(question -> {
+                    question.setDeleted(true);
+                    question.getAnswers().forEach(answer -> answer.setDeleted(true));
+                });
+                dc.getCriteria().setDeleted(true);
+            });
+            departmentCriteriasRepository.deleteAll(dcs);
+        }
     }
 
     @Override

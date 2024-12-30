@@ -1,6 +1,7 @@
 package com.example.sourcebase.controller;
 
 import com.example.sourcebase.domain.dto.reqdto.CriteriaReqDTO;
+import com.example.sourcebase.domain.dto.reqdto.DepartmentCriteriasReqDto;
 import com.example.sourcebase.service.ICriteriaService;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
@@ -30,7 +31,7 @@ public class CriteriaRestController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseData<?>> addCriterion( @Valid @RequestBody CriteriaReqDTO criteriaReqDTO) {
+    public ResponseEntity<ResponseData<?>> addCriterion(@Valid @RequestBody CriteriaReqDTO criteriaReqDTO) {
 //        criteriaService.validateUniqueTitle(criteriaReqDTO);
         return ResponseEntity.ok(
                 ResponseData.builder()
@@ -69,6 +70,12 @@ public class CriteriaRestController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseData<?>> deleteCriterion(@PathVariable Long id) {
         criteriaService.deleteCriterion(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ResponseData<?>> deleteCriterionByCriteriaIdAndDepartmentId(@RequestBody DepartmentCriteriasReqDto dcReqDto) {
+        criteriaService.deleteCriterionByCriteriaIdAndDepartmentId(dcReqDto.getCriteriaId(),dcReqDto.getDepartmentId());
         return ResponseEntity.noContent().build();
     }
 
