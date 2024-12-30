@@ -21,9 +21,12 @@ public interface ICriteriaRepository extends JpaRepository<Criteria, Long> {
     @Query("SELECT c FROM Criteria c WHERE c.isDeleted = false")
     Page<Criteria> findAll(Pageable pageable);
 
-    @Override
-    @Query("SELECT c FROM Criteria c WHERE c.id = :id AND c.isDeleted = false")
-    Optional<Criteria> findById(@Param("id") Long id);
+    @Query("SELECT DISTINCT c FROM Criteria c " +
+            "JOIN c.departmentCriterias dc " +
+            "WHERE c.isDeleted = false " +
+            "AND c.id = :id " +
+            "AND dc.department.id = :departmentId")
+    Optional<Criteria> findById(@Param("id") Long id, @Param("departmentId") Long departmentId);
 
     boolean existsByTitle(String title);
 

@@ -36,6 +36,9 @@ public enum ErrorCode {
     CRITERIA_EXISTED(40902, "Tên đánh giá đã tồn tại", HttpStatus.CONFLICT),
 
     SUM_POINT_INVALID(40903, "Số point của đánh giá phải bằng tổng số point của các câu hỏi", HttpStatus.CONFLICT),
+
+    DEPARTMENT_CRITERIA_NOT_FOUND(40402, "Department Criteria not found", HttpStatus.NOT_FOUND),
+    DEPARTMENT_NOT_FOUND(40403, "Department not found", HttpStatus.NOT_FOUND),
     ;
     int code;
     String message;

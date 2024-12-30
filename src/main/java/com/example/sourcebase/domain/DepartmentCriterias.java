@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 })
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DepartmentCriterias {
     @Id
@@ -29,6 +30,6 @@ public class DepartmentCriterias {
     Criteria criteria;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id", nullable = false)
+    @JoinColumn(name = "question_id")
     Question question;
 }
