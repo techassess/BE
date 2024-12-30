@@ -7,7 +7,10 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @Entity
-@Table(name = "department_criterias")
+@Table(name = "department_criterias", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"department_id", "criterias_id", "question_id"}
+        )
+})
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
