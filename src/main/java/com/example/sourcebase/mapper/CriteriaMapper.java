@@ -19,6 +19,8 @@ public interface CriteriaMapper {
 
     CriteriaResDTO toCriteriaResDTO(Criteria criteria);
 
+    Criteria toCriteria(CriteriaResDTO criteriaResDTO);
+
     AnswerResDTO toAnswerResDTO(Answer answer);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

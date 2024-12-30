@@ -79,13 +79,13 @@ public class CriteriaRestController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ResponseData<?>> getCriterionById(@PathVariable Long id) {
+    @GetMapping("/{id}/{departmentId}")
+    public ResponseEntity<ResponseData<?>> getCriterionById(@PathVariable Long id, @PathVariable Long departmentId) {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.GET_SUCCESSFUL.getCode())
                         .message(SuccessCode.GET_SUCCESSFUL.getMessage())
-                        .data(criteriaService.getCriteriaById(id))
+                        .data(criteriaService.getCriteriaById(id, departmentId))
                         .build());
     }
 
