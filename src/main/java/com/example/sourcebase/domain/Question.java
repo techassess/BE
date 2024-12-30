@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "questions")
@@ -31,4 +32,8 @@ public class Question {
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "question")
+
+    Set<DepartmentCriterias> departmentCriterias;
 }

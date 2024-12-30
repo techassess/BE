@@ -24,4 +24,8 @@ public class DepartmentCriterias {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "criterias_id", nullable = false, unique = true)
     Criteria criteria;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id", nullable = false, unique = true)
+    Question question;
 }
