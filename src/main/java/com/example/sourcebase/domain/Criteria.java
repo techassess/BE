@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -22,4 +23,10 @@ public class Criteria {
     int point;
     @OneToMany(mappedBy = "criteria", fetch = FetchType.LAZY)
     List<Question> questions;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "criteria", fetch = FetchType.LAZY)
+    Set<DepartmentCriterias> departmentCriterias;
 }
