@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DepartmentReqDTO {
-    @NotBlank(message = "Name not be black")
+    @NotBlank(message = "Name cannot be blank")
     String name;
 
 }
