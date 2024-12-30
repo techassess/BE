@@ -21,14 +21,14 @@ public class DepartmentCriterias {
     Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id", nullable = false, unique = true)
+    @JoinColumn(name = "department_id", nullable = false)
     Department department;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "criterias_id", nullable = false, unique = true)
+    @JoinColumn(name = "criterias_id", nullable = false)
     Criteria criteria;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id", nullable = false, unique = true)
+    @JoinColumn(name = "question_id", nullable = false)
     Question question;
 }
