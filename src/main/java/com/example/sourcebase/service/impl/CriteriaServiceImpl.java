@@ -46,6 +46,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
                     // Mapping questions nếu có câu hỏi
                     if (criteria.getQuestions() != null && !criteria.getQuestions().isEmpty()) {
                         List<QuestionResDTO> questionResDTOs = criteria.getQuestions().stream()
+                                .filter(question -> !question.isDeleted())
                                 .map(question -> {
                                     QuestionResDTO questionResDTO = questionMapper.toQuestionResDTO(question);
 
