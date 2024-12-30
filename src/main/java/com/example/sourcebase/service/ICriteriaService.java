@@ -26,4 +26,5 @@ public interface ICriteriaService {
 
     Page<QuestionResDTO> findQuestionsByCriterionId(Long criteriaId, int page, int size, String sortBy, boolean asc);
 
+    CriteriaResDTO addCriterionToDepartment(CriteriaReqDTO criteriaReqDTO, Long departmentId);
 }

@@ -1,6 +1,7 @@
 package com.example.sourcebase.service.impl;
 
 import com.example.sourcebase.domain.Criteria;
+import com.example.sourcebase.domain.Department;
 import com.example.sourcebase.domain.DepartmentCriterias;
 import com.example.sourcebase.domain.Question;
 import com.example.sourcebase.domain.dto.reqdto.CriteriaReqDTO;
@@ -12,6 +13,7 @@ import com.example.sourcebase.mapper.CriteriaMapper;
 import com.example.sourcebase.mapper.QuestionMapper;
 import com.example.sourcebase.repository.ICriteriaRepository;
 import com.example.sourcebase.repository.IDepartmentCriteriasRepository;
+import com.example.sourcebase.repository.IDepartmentRepository;
 import com.example.sourcebase.repository.IQuestionRepository;
 import com.example.sourcebase.service.ICriteriaService;
 import com.example.sourcebase.util.ErrorCode;
@@ -35,7 +37,8 @@ public class CriteriaServiceImpl implements ICriteriaService {
 
     ICriteriaRepository criteriaRepository;
     IQuestionRepository questionRepository;
-    IDepartmentCriteriasRepository departmentCriteriasRepository;
+    IDepartmentCriteriasRepository dcRepository;
+    IDepartmentRepository departmentRepository;
     CriteriaMapper criteriaMapper = CriteriaMapper.INSTANCE;
     QuestionMapper questionMapper = QuestionMapper.INSTANCE;
 
@@ -183,7 +186,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
     @Override
     @Transactional
     public void deleteCriterionByCriteriaIdAndDepartmentId(Long criteriaId, Long departmentId) {
-        List<DepartmentCriterias> dcs = departmentCriteriasRepository.findByCriteria_IdAndDepartment_Id(criteriaId, departmentId);
+        List<DepartmentCriterias> dcs = dcRepository.findByCriteria_IdAndDepartment_Id(criteriaId, departmentId);
         System.out.println(criteriaId + " " + departmentId);
         if (dcs != null && !dcs.isEmpty()) {
             dcs.forEach(dc -> {
@@ -193,7 +196,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
                 });
                 dc.getCriteria().setDeleted(true);
             });
-            departmentCriteriasRepository.deleteAll(dcs);
+            dcRepository.deleteAll(dcs);
         }
     }
 
@@ -201,6 +204,26 @@ public class CriteriaServiceImpl implements ICriteriaService {
     public Page<QuestionResDTO> findQuestionsByCriterionId(Long criteriaId, int page, int size, String sortBy, boolean asc) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(asc ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy));
         return questionRepository.findAllByCriteria_Id(criteriaId, pageable).map(questionMapper::toQuestionResDTO);
+    }
+
+    @Override
+    @Transactional
+    public CriteriaResDTO addCriterionToDepartment(CriteriaReqDTO criteriaReqDTO, Long departmentId) {
+        Criteria newCriteria = criteriaMapper.toEntity(criteriaReqDTO);
+        if (criteriaRepository.existsByTitleIgnoreCase(newCriteria.getTitle())) {
+            throw new AppException(ErrorCode.CRITERIA_EXISTED);
+        }
+        Criteria savedCriteria = criteriaRepository.save(newCriteria);
+
+        Department d = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+
+        DepartmentCriterias dc = dcRepository.save(DepartmentCriterias.builder()
+                .criteria(savedCriteria)
+                .department(d)
+                .build());
+
+        return criteriaMapper.toCriteriaResDTO(dc.getCriteria());
     }
 
 }
