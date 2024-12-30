@@ -5,9 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 
 @Entity
 @Table(name = "criterias")
@@ -27,6 +27,7 @@ public class Criteria {
     ETypeCriteria visibleFor;
 
     int point;
+
     @OneToMany(mappedBy = "criteria", fetch = FetchType.LAZY)
     List<Question> questions;
 
