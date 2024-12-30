@@ -4,25 +4,25 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Set;
+
 @Entity
-@Table(name = "answers")
+@Table(name = "department")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Answer {
+public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+    String name;
 
-    String title;
+    @OneToMany(mappedBy = "department")
 
-    int value;
+    Set<DepartmentCriterias> departmentCriterias;
 
-    @ManyToOne
-    Question question;
-
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @OneToMany(mappedBy = "department")
+    Set<Project> projects;
 }

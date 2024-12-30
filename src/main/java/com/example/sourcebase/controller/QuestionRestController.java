@@ -1,19 +1,26 @@
 package com.example.sourcebase.controller;
 
+import com.example.sourcebase.domain.dto.reqdto.AddQuestionReqDto;
+import com.example.sourcebase.domain.dto.reqdto.QuestionReqDto;
 import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import com.example.sourcebase.service.IQuestionService;
+import com.example.sourcebase.service.IUserService;
 import com.example.sourcebase.util.ErrorCode;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/questions")
@@ -23,7 +30,7 @@ public class QuestionRestController {
     IQuestionService questionService;
 
     @GetMapping("/{criteriaId}")
-    public ResponseEntity<ResponseData<?>> getAllQuestionByCriteriaID(@PathVariable Long criteriaId) {
+    public ResponseEntity<ResponseData<?>> getAllQuestionsByCriteriaID(@PathVariable Long criteriaId) {
 
         List<QuestionResDTO> questions = questionService.getAllQuestionByCriteriaID(criteriaId);
 
@@ -40,6 +47,70 @@ public class QuestionRestController {
                         .code(SuccessCode.GET_SUCCESSFUL.getCode())
                         .message(SuccessCode.GET_SUCCESSFUL.getMessage())
                         .data(questions)
+                        .build());
+    }
+    @GetMapping("/v2/{id}")
+    public ResponseEntity<ResponseData<?>> getQuestionById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                        .data(questionService.getQuestionById(id))
+                        .build());
+    }
+   @PostMapping
+    public ResponseEntity<ResponseData<?>> addQuestionAndAnswers(@Valid @RequestBody  AddQuestionReqDto addQuestionReqDto) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.CREATED.getCode())
+                        .message(SuccessCode.CREATED.getMessage())
+                        .data(questionService.addQuestionAndAnswers(addQuestionReqDto))
+                        .build());
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateQuestion(@PathVariable Long id, @Valid @RequestBody QuestionReqDto questionReqDto) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.UPDATED.getCode())
+                        .message(SuccessCode.UPDATED.getMessage())
+                        .data(questionService.updateQuestion(id, questionReqDto))
+                        .build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseData<?>> deleteQuestion(@PathVariable Long id) {
+        questionService.deleteQuestion(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseData<?>> findAllQuestions(@RequestParam(defaultValue = "0") int page,
+                                                            @RequestParam(defaultValue = "10") int size,
+                                                            @RequestParam(defaultValue = "id") String sortBy,
+                                                            @RequestParam(defaultValue = "true") boolean asc) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .data(questionService.findAllQuestions(page, size, sortBy, asc))
+                        .build());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ResponseData<?>> search(@RequestParam String title,
+                                                  @RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "10") int size,
+                                                  @RequestParam(defaultValue = "id") String sortBy,
+                                                  @RequestParam(defaultValue = "true") boolean asc) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .data(questionService.findQuestionsByTitle(title, page, size, sortBy, asc))
                         .build());
     }
 }

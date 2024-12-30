@@ -2,12 +2,8 @@ package com.example.sourcebase.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
-
-import javax.tools.Diagnostic;
 
 @Getter
 @AllArgsConstructor
@@ -26,13 +22,21 @@ public enum ErrorCode {
 
     INVALID_PASSWORD(409, "Invalid Password", HttpStatus.CONFLICT),
 
-    PPOJECT_IS_EXIST(410,"Project Exist" ,HttpStatus.CONFLICT ),
-     INVALID_INPUT (411, "Dữ liệu đầu vào không hợp lệ",HttpStatus.CONFLICT),
-    INVALID_START_DATE(412, "Ngày bắt đầu không được sau ngày hiện tại",HttpStatus.CONFLICT),
-    INVALID_END_DATE(413, "Ngày kết thúc phải lớn hơn ngày hiện tại",HttpStatus.CONFLICT),
-    END_DATE_BEFORE_START_DATE(414, "Ngày kết thúc phải sau ngày bắt đầu",HttpStatus.CONFLICT),
-    PROJECT_NOT_FOUND(415,"Không tìm thấy project" ,HttpStatus.NOT_FOUND ),
-    ASSESS_IS_NOT_EXIST(404, "Assess Not Found", HttpStatus.NOT_FOUND);
+    PPOJECT_IS_EXIST(410, "Project Exist", HttpStatus.CONFLICT),
+    INVALID_INPUT(411, "Dữ liệu đầu vào không hợp lệ", HttpStatus.CONFLICT),
+    INVALID_START_DATE(412, "Ngày bắt đầu không được sau ngày hiện tại", HttpStatus.CONFLICT),
+    INVALID_END_DATE(413, "Ngày kết thúc phải lớn hơn ngày hiện tại", HttpStatus.CONFLICT),
+    END_DATE_BEFORE_START_DATE(414, "Ngày kết thúc phải sau ngày bắt đầu", HttpStatus.CONFLICT),
+    PROJECT_NOT_FOUND(415, "Không tìm thấy project", HttpStatus.NOT_FOUND),
+    ASSESS_IS_NOT_EXIST(404, "Không tìm thấy đánh giá", HttpStatus.NOT_FOUND),
+
+    ANSWER_NOT_FOUND(40401, "Answer not found", HttpStatus.NOT_FOUND),
+    ANSWER_EXISTED(40901, "Đáp án đã tồn tại", HttpStatus.CONFLICT),
+
+    CRITERIA_EXISTED(40902, "Tên đánh giá đã tồn tại", HttpStatus.CONFLICT),
+
+    SUM_POINT_INVALID(40903, "Số point của đánh giá phải bằng tổng số point của các câu hỏi", HttpStatus.CONFLICT),
+    ;
     int code;
     String message;
     HttpStatus httpStatus;
