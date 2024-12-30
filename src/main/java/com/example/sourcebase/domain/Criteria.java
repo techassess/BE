@@ -1,12 +1,13 @@
 package com.example.sourcebase.domain;
 
+import com.example.sourcebase.domain.enumeration.ETypeCriteria;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 
 @Entity
 @Table(name = "criterias")
@@ -19,8 +20,14 @@ public class Criteria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
     String title;
+
+    @Enumerated(EnumType.STRING)
+    ETypeCriteria visibleFor;
+
     int point;
+
     @OneToMany(mappedBy = "criteria", fetch = FetchType.LAZY)
     List<Question> questions;
 
