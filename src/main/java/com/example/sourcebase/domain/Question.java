@@ -26,9 +26,6 @@ public class Question {
     @ManyToOne
     Criteria criteria;
 
-    @OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "question", fetch = FetchType.LAZY)
     List<Answer> answers;
-
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
 }

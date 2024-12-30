@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
+
 @Entity
 @Table(name = "criterias")
 @AllArgsConstructor
@@ -17,14 +18,8 @@ public class Criteria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-
     String title;
-
     int point;
-
     @OneToMany(mappedBy = "criteria", fetch = FetchType.LAZY)
     List<Question> questions;
-
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
 }
