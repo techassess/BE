@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "criterias")
@@ -27,4 +29,7 @@ public class Criteria {
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "criteria", fetch = FetchType.LAZY)
+    Set<DepartmentCriterias> departmentCriterias;
 }
