@@ -12,7 +12,7 @@ public interface ICriteriaService {
 
     Page<CriteriaResDTO> getAllCriteria(int page, int size, String sortBy, boolean asc);
 
-    CriteriaResDTO getCriteriaById(Long id);
+    CriteriaResDTO getCriteriaById(Long id, Long departmentId);
 
     CriteriaResDTO addCriterion(CriteriaReqDTO criteriaReqDTO);
 
@@ -26,4 +26,5 @@ public interface ICriteriaService {
 
     Page<QuestionResDTO> findQuestionsByCriterionId(Long criteriaId, int page, int size, String sortBy, boolean asc);
 
+    CriteriaResDTO addCriterionToDepartment(CriteriaReqDTO criteriaReqDTO, Long departmentId);
 }

@@ -17,19 +17,15 @@ import org.mapstruct.factory.Mappers;
 public interface CriteriaMapper {
     CriteriaMapper INSTANCE = Mappers.getMapper(CriteriaMapper.class);
 
-    // Mapping từ CriteriaReqDTO sang thực thể Criteria
     Criteria toEntity(CriteriaReqDTO reqDTO);
 
-    // Mapping từ Criteria sang DTO
     CriteriaResDTO toCriteriaResDTO(Criteria criteria);
 
-    // Mapping từ Answer sang DTO
-    AnswerResDTO toAnswerResDTO(Answer answer);
+    Criteria toCriteria(CriteriaResDTO criteriaResDTO);
 
-    // Mapping từ Question sang DTO
+    AnswerResDTO toAnswerResDTO(Answer answer);
     QuestionResDTO toQuestionResDTO(Question question);
 
-    // Cập nhật một phần dữ liệu Criteria
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Criteria partialUpdate(CriteriaReqDTO reqDTO, @MappingTarget Criteria criteria);
 }

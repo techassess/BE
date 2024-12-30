@@ -1,5 +1,6 @@
 package com.example.sourcebase.controller;
 
+import com.example.sourcebase.domain.dto.reqdto.AddCriterionToDepartmentReqDto;
 import com.example.sourcebase.domain.dto.reqdto.CriteriaReqDTO;
 import com.example.sourcebase.domain.dto.reqdto.DepartmentCriteriasReqDto;
 import com.example.sourcebase.service.ICriteriaService;
@@ -31,13 +32,12 @@ public class CriteriaRestController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseData<?>> addCriterion(@Valid @RequestBody CriteriaReqDTO criteriaReqDTO) {
-//        criteriaService.validateUniqueTitle(criteriaReqDTO);
+    public ResponseEntity<ResponseData<?>> addCriterion(@Valid @RequestBody AddCriterionToDepartmentReqDto dto) {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.CREATED.getCode())
                         .message(SuccessCode.CREATED.getMessage())
-                        .data(criteriaService.addCriterion(criteriaReqDTO))
+                        .data(criteriaService.addCriterionToDepartment(dto.getCriteriaReqDTO(), dto.getDepartmentId()))
                         .build());
     }
 
@@ -75,17 +75,17 @@ public class CriteriaRestController {
 
     @DeleteMapping
     public ResponseEntity<ResponseData<?>> deleteCriterionByCriteriaIdAndDepartmentId(@RequestBody DepartmentCriteriasReqDto dcReqDto) {
-        criteriaService.deleteCriterionByCriteriaIdAndDepartmentId(dcReqDto.getCriteriaId(),dcReqDto.getDepartmentId());
+        criteriaService.deleteCriterionByCriteriaIdAndDepartmentId(dcReqDto.getCriteriaId(), dcReqDto.getDepartmentId());
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ResponseData<?>> getCriterionById(@PathVariable Long id) {
+    @GetMapping("/{id}/{departmentId}")
+    public ResponseEntity<ResponseData<?>> getCriterionById(@PathVariable Long id, @PathVariable Long departmentId) {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.GET_SUCCESSFUL.getCode())
                         .message(SuccessCode.GET_SUCCESSFUL.getMessage())
-                        .data(criteriaService.getCriteriaById(id))
+                        .data(criteriaService.getCriteriaById(id, departmentId))
                         .build());
     }
 
