@@ -1,5 +1,6 @@
 package com.example.sourcebase.domain.dto.reqdto;
 
+import com.example.sourcebase.domain.enumeration.ETypeCriteria;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -24,4 +25,7 @@ public class CriteriaReqDTO {
     String title;
 
     Integer point;
+
+    String visibleFor;
+
 }
