@@ -1,6 +1,7 @@
 package com.example.sourcebase.service.impl;
 
 import com.example.sourcebase.domain.Criteria;
+import com.example.sourcebase.domain.Question;
 import com.example.sourcebase.domain.dto.reqdto.CriteriaReqDTO;
 import com.example.sourcebase.domain.dto.resdto.AnswerResDTO;
 import com.example.sourcebase.domain.dto.resdto.CriteriaResDTO;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -88,14 +90,38 @@ public class CriteriaServiceImpl implements ICriteriaService {
     }
 
     @Override
-    public CriteriaResDTO getCriteriaById(Long id) {
-        CriteriaResDTO criteriaResDTO = criteriaRepository.findById(id)
-                .map(criteriaMapper::toCriteriaResDTO)
+    public CriteriaResDTO getCriteriaById(Long id, Long departmentId) {
+        Criteria criteria = criteriaRepository.findById(id, departmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
 
-        criteriaResDTO.setQuestions(criteriaResDTO.getQuestions().stream()
-                .filter(question -> !question.isDeleted())
-                .collect(Collectors.toList()));
+        CriteriaResDTO criteriaResDTO = criteriaMapper.toCriteriaResDTO(criteria);
+
+        if (criteria.getDepartmentCriterias() != null && !criteria.getDepartmentCriterias().isEmpty()) {
+            List<QuestionResDTO> questionResDTOs = criteria.getDepartmentCriterias().stream()
+                    .filter(dc -> dc.getDepartment().getId().equals(departmentId)) // Lọc theo departmentId
+                    .map(dc -> {
+                        Question question = dc.getQuestion();
+                        if (question != null && !question.isDeleted()) {
+                            QuestionResDTO questionResDTO = questionMapper.toQuestionResDTO(question);
+
+                            List<AnswerResDTO> answerResDTOs = question.getAnswers() != null
+                                    ? question.getAnswers().stream()
+                                    .map(criteriaMapper::toAnswerResDTO)
+                                    .collect(Collectors.toList())
+                                    : null;
+                            questionResDTO.setAnswers(answerResDTOs);
+
+                            return questionResDTO;
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            criteriaResDTO.setQuestions(questionResDTOs);
+        } else {
+            criteriaResDTO.setQuestions(null);
+        }
 
         return criteriaResDTO;
     }
