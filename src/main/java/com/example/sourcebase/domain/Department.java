@@ -23,7 +23,7 @@ public class Department {
     @Column(nullable = false)
     boolean deleted = false;
 
-    @OneToMany(mappedBy = "department")
+    @OneToMany(mappedBy = "department", fetch = FetchType.EAGER)
     Set<DepartmentCriterias> departmentCriterias;
 
     @OneToMany(mappedBy = "department")
