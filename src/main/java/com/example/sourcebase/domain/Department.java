@@ -17,10 +17,13 @@ public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
     String name;
 
-    @OneToMany(mappedBy = "department")
+    @Column(nullable = false)
+    boolean deleted = false;
 
+    @OneToMany(mappedBy = "department")
     Set<DepartmentCriterias> departmentCriterias;
 
     @OneToMany(mappedBy = "department")
