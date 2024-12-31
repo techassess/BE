@@ -1,5 +1,7 @@
 package com.example.sourcebase.controller;
 
+import com.example.sourcebase.domain.dto.reqdto.DepartmentReqDTO;
+import com.example.sourcebase.domain.dto.resdto.DepartmentResDTO;
 import com.example.sourcebase.exception.AppException;
 import com.example.sourcebase.domain.dto.reqdto.DepartmentReqDTO;
 import com.example.sourcebase.domain.dto.resdto.DepartmentResDTO;
