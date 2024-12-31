@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IDepartmentRepository extends JpaRepository<Department, Long> {
+    boolean existsByNameIgnoreCaseAndDeletedIsFalse(String name);
 
     @Query("SELECT DISTINCT d FROM Department d " +
             "JOIN FETCH d.departmentCriterias dc " +
@@ -25,4 +26,7 @@ public interface IDepartmentRepository extends JpaRepository<Department, Long> {
     @Query("SELECT d FROM Department d WHERE d.id = :id AND d.deleted = false")
     Optional<Department> findById(@Param("id") Long id);
 
+
+    @Query("SELECT COUNT(d) > 0 FROM Department d WHERE lower(d.name) = lower(:name) AND d.deleted = false")
+    boolean existsByNameIgnoreCase(String name);
 }

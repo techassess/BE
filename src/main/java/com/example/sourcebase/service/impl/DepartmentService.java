@@ -2,6 +2,7 @@ package com.example.sourcebase.service.impl;
 
 import com.example.sourcebase.domain.Criteria;
 import com.example.sourcebase.domain.Department;
+import com.example.sourcebase.domain.dto.reqdto.DepartmentReqDTO;
 import com.example.sourcebase.domain.dto.resdto.CriteriaResDTO;
 import com.example.sourcebase.domain.dto.resdto.DepartmentResDTO;
 import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
@@ -12,13 +13,16 @@ import com.example.sourcebase.repository.IDepartmentCriteriasRepository;
 import com.example.sourcebase.repository.IDepartmentRepository;
 import com.example.sourcebase.service.IDepartmentService;
 import com.example.sourcebase.util.ErrorCode;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
 @Service
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -79,5 +83,32 @@ public class DepartmentService implements IDepartmentService {
         // Đánh dấu Department là đã bị xóa
         department.setDeleted(true);
         departmentRepository.save(department);
+    }
+
+    @Override
+    @Transactional
+    public DepartmentResDTO addDepartment(DepartmentReqDTO departmentReqDTO) {
+        Department department = departmentMapper.toEntity(departmentReqDTO);
+        if (departmentRepository.existsByNameIgnoreCaseAndDeletedIsFalse(department.getName())) {
+            throw new AppException(ErrorCode.DEPARTMENT_ALREADY_EXIST);
+        }
+        return departmentMapper.toDepartmentResDTO(departmentRepository.save(department));
+    }
+
+    @Override
+    @Transactional
+    public DepartmentResDTO updateDepartment(Long id, DepartmentReqDTO departmentReqDTO) {
+        return departmentRepository.findById(id)
+                .map(department -> {
+                    if (departmentReqDTO.getName() != null
+                            && !departmentReqDTO.getName().equalsIgnoreCase(department.getName())
+                            && departmentRepository.existsByNameIgnoreCase(departmentReqDTO.getName())
+                    ) {
+                        throw new AppException(ErrorCode.DEPARTMENT_NOT_FOUND);
+                    }
+                    department = departmentMapper.partialUpdate(departmentReqDTO, department);
+                    return departmentMapper.toDepartmentResDTO(departmentRepository.save(department));
+                })
+                .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
     }
 }
