@@ -20,5 +20,4 @@ public class CriteriaResDTO {
     int point;
     ETypeCriteria visibleFor;
     List<QuestionResDTO> questions;
-
 }

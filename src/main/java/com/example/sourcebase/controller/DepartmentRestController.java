@@ -2,6 +2,9 @@ package com.example.sourcebase.controller;
 
 import com.example.sourcebase.domain.dto.reqdto.DepartmentReqDTO;
 import com.example.sourcebase.domain.dto.resdto.DepartmentResDTO;
+import com.example.sourcebase.exception.AppException;
+import com.example.sourcebase.domain.dto.reqdto.DepartmentReqDTO;
+import com.example.sourcebase.domain.dto.resdto.DepartmentResDTO;
 import com.example.sourcebase.service.IDepartmentService;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
@@ -11,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +42,16 @@ public class DepartmentRestController {
         );
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
+        try {
+            departmentService.deleteDepartment(id);
+            return ResponseEntity.noContent().build();
+        } catch (AppException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
     @PostMapping
     public ResponseEntity<ResponseData<?>> createDepartment(@Valid @RequestBody DepartmentReqDTO departmentReqDTO) {
         DepartmentResDTO d = departmentService.addDepartment(departmentReqDTO);
@@ -49,5 +63,16 @@ public class DepartmentRestController {
                         .data(d)
                         .build()
         );
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseData<?>> updatedDepartment(@PathVariable Long id,
+                                                             @Valid @RequestBody DepartmentReqDTO departmentReqDTO) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.UPDATED.getCode())
+                        .message(SuccessCode.UPDATED.getMessage())
+                        .data(departmentService.updateDepartment(id, departmentReqDTO))
+                        .build());
     }
 }

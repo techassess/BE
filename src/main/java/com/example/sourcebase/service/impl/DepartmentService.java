@@ -1,5 +1,6 @@
 package com.example.sourcebase.service.impl;
 
+import com.example.sourcebase.domain.Criteria;
 import com.example.sourcebase.domain.Department;
 import com.example.sourcebase.domain.dto.reqdto.DepartmentReqDTO;
 import com.example.sourcebase.domain.dto.resdto.CriteriaResDTO;
@@ -8,6 +9,7 @@ import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import com.example.sourcebase.exception.AppException;
 import com.example.sourcebase.mapper.CriteriaMapper;
 import com.example.sourcebase.mapper.DepartmentMapper;
+import com.example.sourcebase.repository.IDepartmentCriteriasRepository;
 import com.example.sourcebase.repository.IDepartmentRepository;
 import com.example.sourcebase.service.IDepartmentService;
 import com.example.sourcebase.util.ErrorCode;
@@ -29,59 +31,58 @@ public class DepartmentService implements IDepartmentService {
     IDepartmentRepository departmentRepository;
     DepartmentMapper departmentMapper;
     CriteriaMapper criteriaMapper;
+    IDepartmentCriteriasRepository departmentCriteriasRepository;
 
     @Override
     public List<DepartmentResDTO> getAllDepartments() {
-        // Lấy danh sách các department đã được xử lý thông qua repository
         List<Department> departments = departmentRepository.findAll();
 
-        // Duyệt qua các department và xử lý dữ liệu
-        return departments.stream().map(department -> {
-            // Chuyển đổi department sang DTO
-            DepartmentResDTO departmentResDTO = departmentMapper.toDepartmentResDTO(department);
+        return departments.stream().filter(department -> !department.isDeleted())
+                .map(department -> {
+                    DepartmentResDTO departmentResDTO = departmentMapper.toDepartmentResDTO(department);
+                    List<CriteriaResDTO> criteriaResDTOS = department.getDepartmentCriterias().stream()
+                            .filter(departmentCriteria -> !departmentCriteria.getCriteria().isDeleted())
+                            .map(departmentCriteria -> {
+                                CriteriaResDTO criteriaResDTO = criteriaMapper.toCriteriaResDTO(departmentCriteria.getCriteria());
+                                if (departmentCriteria.getCriteria().getQuestions() != null) {
+                                    criteriaResDTO.setQuestions(departmentCriteria.getCriteria().getQuestions().stream()
+                                            .filter(question -> !question.isDeleted())
+                                            .map(question -> {
+                                                QuestionResDTO questionResDTO = criteriaMapper.toQuestionResDTO(question);
 
-            // Nhóm các criteria theo ID để loại bỏ trùng
-            Map<Long, CriteriaResDTO> criteriaMap = department.getDepartmentCriterias().stream()
-                    .filter(departmentCriteria -> !departmentCriteria.getCriteria().isDeleted()) // Lọc các criteria chưa bị xóa
-                    .map(departmentCriteria -> {
-                        CriteriaResDTO criteriaResDTO = criteriaMapper.toCriteriaResDTO(departmentCriteria.getCriteria());
+                                                if (question.getAnswers() != null) {
+                                                    questionResDTO.setAnswers(question.getAnswers().stream()
+                                                            .filter(answer -> !answer.isDeleted())
+                                                            .map(criteriaMapper::toAnswerResDTO)
+                                                            .collect(Collectors.toList()));
+                                                }
 
-                        // Lấy tất cả câu hỏi liên kết với Criteria thông qua DepartmentCriterias
-                        List<QuestionResDTO> questionResDTOList = department.getDepartmentCriterias().stream()
-                                .filter(dc -> dc.getCriteria().equals(departmentCriteria.getCriteria())) // Lọc các DepartmentCriterias có cùng Criteria
-                                .map(dc -> {
-                                    if (dc.getQuestion() != null && !dc.getQuestion().isDeleted()) {
-                                        // Chuyển đổi câu hỏi thành DTO
-                                        QuestionResDTO questionResDTO = criteriaMapper.toQuestionResDTO(dc.getQuestion());
+                                                return questionResDTO;
+                                            })
+                                            .collect(Collectors.toList()));
+                                }
 
-                                        // Lọc và chuyển đổi các câu trả lời
-                                        if (dc.getQuestion().getAnswers() != null) {
-                                            questionResDTO.setAnswers(dc.getQuestion().getAnswers().stream()
-                                                    .filter(answer -> !answer.isDeleted()) // Lọc các câu trả lời chưa bị xóa
-                                                    .map(criteriaMapper::toAnswerResDTO)
-                                                    .collect(Collectors.toList()));
-                                        }
-                                        return questionResDTO;
-                                    }
-                                    return null;
-                                })
-                                .filter(questionResDTO -> questionResDTO != null) // Loại bỏ các câu hỏi null
-                                .collect(Collectors.toList());
+                                return criteriaResDTO;
+                            })
+                            .collect(Collectors.toList());
 
-                        // Gán danh sách câu hỏi vào DTO của Criteria
-                        criteriaResDTO.setQuestions(questionResDTOList);
-                        return criteriaResDTO;
-                    })
-                    .collect(Collectors.toMap(
-                            CriteriaResDTO::getId,    // Sử dụng id của CriteriaResDTO làm khóa
-                            criteriaResDTO -> criteriaResDTO,  // Giá trị là CriteriaResDTO
-                            (existing, replacement) -> existing // Giữ lại giá trị đầu tiên nếu có trùng lặp
-                    ));
+                    departmentResDTO.setCriteria(criteriaResDTOS);
+                    return departmentResDTO;
+                }).collect(Collectors.toList());
+    }
 
-            // Gán danh sách criteria đã nhóm vào DTO của department
-            departmentResDTO.setCriteria(criteriaMap.values().stream().collect(Collectors.toList()));
-            return departmentResDTO;
-        }).collect(Collectors.toList()); // Trả về danh sách các DepartmentResDTO
+    public void deleteDepartment(Long id){
+        Department department = departmentRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+
+        if (department.getDepartmentCriterias() != null) {
+            department.getDepartmentCriterias().forEach(departmentCriteria -> {
+                departmentCriteriasRepository.deleteByDepartmentId(departmentCriteria.getId());
+            });
+        }
+        // Đánh dấu Department là đã bị xóa
+        department.setDeleted(true);
+        departmentRepository.save(department);
     }
 
     @Override
@@ -94,5 +95,20 @@ public class DepartmentService implements IDepartmentService {
         return departmentMapper.toDepartmentResDTO(departmentRepository.save(department));
     }
 
-
+    @Override
+    @Transactional
+    public DepartmentResDTO updateDepartment(Long id, DepartmentReqDTO departmentReqDTO) {
+        return departmentRepository.findById(id)
+                .map(department -> {
+                    if (departmentReqDTO.getName() != null
+                            && !departmentReqDTO.getName().equalsIgnoreCase(department.getName())
+                            && departmentRepository.existsByNameIgnoreCase(departmentReqDTO.getName())
+                    ) {
+                        throw new AppException(ErrorCode.DEPARTMENT_NOT_FOUND);
+                    }
+                    department = departmentMapper.partialUpdate(departmentReqDTO, department);
+                    return departmentMapper.toDepartmentResDTO(departmentRepository.save(department));
+                })
+                .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+    }
 }
