@@ -18,7 +18,6 @@ public class CriteriaResDTO {
     Long id;
     String title;
     int point;
-    private ETypeCriteria visibleFor;
+    ETypeCriteria visibleFor;
     List<QuestionResDTO> questions;
-
 }

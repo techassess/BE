@@ -50,6 +50,7 @@ public class SpringSecurity {
                                 .requestMatchers("/api/questions/**").permitAll()
                                 .requestMatchers("/api/assess/**").permitAll()
                                 .requestMatchers("/api/answers/**").permitAll()
+                                .requestMatchers("/api/departments/**").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/api/auths/**").permitAll()
                                 .requestMatchers("/static/**").permitAll()
                                 .anyRequest().authenticated())
