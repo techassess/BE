@@ -19,7 +19,7 @@ public class Department {
     Long id;
     String name;
 
-    @OneToMany(mappedBy = "department")
+    @OneToMany(mappedBy = "department", fetch = FetchType.EAGER)
 
     Set<DepartmentCriterias> departmentCriterias;
 
