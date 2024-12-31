@@ -1,6 +1,8 @@
 package com.example.sourcebase.controller;
 
 import com.example.sourcebase.domain.dto.reqdto.DepartmentReqDTO;
+import com.example.sourcebase.domain.dto.resdto.DepartmentResDTO;
+import com.example.sourcebase.domain.dto.reqdto.DepartmentReqDTO;
 import com.example.sourcebase.service.IDepartmentService;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
@@ -33,6 +35,19 @@ public class DepartmentRestController {
                         .code(SuccessCode.GET_SUCCESSFUL.getCode())
                         .message(SuccessCode.GET_SUCCESSFUL.getMessage())
                         .data(departments)
+                        .build()
+        );
+    }
+
+    @PostMapping
+    public ResponseEntity<ResponseData<?>> createDepartment(@Valid @RequestBody DepartmentReqDTO departmentReqDTO) {
+        DepartmentResDTO d = departmentService.addDepartment(departmentReqDTO);
+
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.CREATED.getCode())
+                        .message(SuccessCode.CREATED.getMessage())
+                        .data(d)
                         .build()
         );
     }

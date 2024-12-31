@@ -86,6 +86,17 @@ public class DepartmentService implements IDepartmentService {
 
     @Override
     @Transactional
+    public DepartmentResDTO addDepartment(DepartmentReqDTO departmentReqDTO) {
+        Department department = departmentMapper.toEntity(departmentReqDTO);
+        if (departmentRepository.existsByNameIgnoreCaseAndDeletedIsFalse(department.getName())) {
+            throw new AppException(ErrorCode.DEPARTMENT_ALREADY_EXIST);
+        }
+        return departmentMapper.toDepartmentResDTO(departmentRepository.save(department));
+    }
+
+
+    @Override
+    @Transactional
     public DepartmentResDTO updateDepartment(Long id, DepartmentReqDTO departmentReqDTO) {
         return departmentRepository.findById(id)
                 .map(department -> {
