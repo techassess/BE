@@ -12,7 +12,6 @@ import com.example.sourcebase.repository.IDepartmentCriteriasRepository;
 import com.example.sourcebase.repository.IDepartmentRepository;
 import com.example.sourcebase.service.IDepartmentService;
 import com.example.sourcebase.util.ErrorCode;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -34,46 +33,50 @@ public class DepartmentService implements IDepartmentService {
     public List<DepartmentResDTO> getAllDepartments() {
         List<Department> departments = departmentRepository.findAll();
 
-        return departments.stream().map(department -> {
-            DepartmentResDTO departmentResDTO = departmentMapper.toDepartmentResDTO(department);
-            List<CriteriaResDTO> criteriaResDTOS = department.getDepartmentCriterias().stream()
-                    .filter(departmentCriteria -> !departmentCriteria.getCriteria().isDeleted())
-                    .map(departmentCriteria -> {
-                        CriteriaResDTO criteriaResDTO = criteriaMapper.toCriteriaResDTO(departmentCriteria.getCriteria());
-                        if (departmentCriteria.getCriteria().getQuestions() != null) {
-                            criteriaResDTO.setQuestions(departmentCriteria.getCriteria().getQuestions().stream()
-                                    .filter(question -> !question.isDeleted())
-                                    .map(question -> {
-                                        QuestionResDTO questionResDTO = criteriaMapper.toQuestionResDTO(question);
+        return departments.stream().filter(department -> !department.isDeleted())
+                .map(department -> {
+                    DepartmentResDTO departmentResDTO = departmentMapper.toDepartmentResDTO(department);
+                    List<CriteriaResDTO> criteriaResDTOS = department.getDepartmentCriterias().stream()
+                            .filter(departmentCriteria -> !departmentCriteria.getCriteria().isDeleted())
+                            .map(departmentCriteria -> {
+                                CriteriaResDTO criteriaResDTO = criteriaMapper.toCriteriaResDTO(departmentCriteria.getCriteria());
+                                if (departmentCriteria.getCriteria().getQuestions() != null) {
+                                    criteriaResDTO.setQuestions(departmentCriteria.getCriteria().getQuestions().stream()
+                                            .filter(question -> !question.isDeleted())
+                                            .map(question -> {
+                                                QuestionResDTO questionResDTO = criteriaMapper.toQuestionResDTO(question);
 
-                                        if (question.getAnswers() != null) {
-                                            questionResDTO.setAnswers(question.getAnswers().stream()
-                                                    .filter(answer -> !answer.isDeleted())
-                                                    .map(criteriaMapper::toAnswerResDTO)
-                                                    .collect(Collectors.toList()));
-                                        }
+                                                if (question.getAnswers() != null) {
+                                                    questionResDTO.setAnswers(question.getAnswers().stream()
+                                                            .filter(answer -> !answer.isDeleted())
+                                                            .map(criteriaMapper::toAnswerResDTO)
+                                                            .collect(Collectors.toList()));
+                                                }
 
-                                        return questionResDTO;
-                                    })
-                                    .collect(Collectors.toList()));
-                        }
+                                                return questionResDTO;
+                                            })
+                                            .collect(Collectors.toList()));
+                                }
 
-                        return criteriaResDTO;
-                    })
-                    .collect(Collectors.toList());
+                                return criteriaResDTO;
+                            })
+                            .collect(Collectors.toList());
 
-            departmentResDTO.setCriteria(criteriaResDTOS);
-            return departmentResDTO;
-        }).collect(Collectors.toList());
+                    departmentResDTO.setCriteria(criteriaResDTOS);
+                    return departmentResDTO;
+                }).collect(Collectors.toList());
     }
 
-    @Override
-    @Transactional
-    public void deleteDepartment(Long id) {
+    public void deleteDepartment(Long id){
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
 
-        departmentCriteriasRepository.deleteByDepartmentId(id);
+        if (department.getDepartmentCriterias() != null) {
+            department.getDepartmentCriterias().forEach(departmentCriteria -> {
+                departmentCriteriasRepository.deleteByDepartmentId(departmentCriteria.getId());
+            });
+        }
+        // Đánh dấu Department là đã bị xóa
         department.setDeleted(true);
         departmentRepository.save(department);
     }

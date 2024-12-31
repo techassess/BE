@@ -20,8 +20,10 @@ public class Department {
     String name;
 
 
-    @OneToMany(mappedBy = "department")
+    @Column(nullable = false)
+    boolean deleted = false;
 
+    @OneToMany(mappedBy = "department", fetch = FetchType.EAGER)
     Set<DepartmentCriterias> departmentCriterias;
 
     @OneToMany(mappedBy = "department")
