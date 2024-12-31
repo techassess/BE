@@ -95,4 +95,20 @@ public class DepartmentService implements IDepartmentService {
     }
 
 
+    @Override
+    @Transactional
+    public DepartmentResDTO updateDepartment(Long id, DepartmentReqDTO departmentReqDTO) {
+        return departmentRepository.findById(id)
+                .map(department -> {
+                    if (departmentReqDTO.getName() != null
+                            && !departmentReqDTO.getName().equalsIgnoreCase(department.getName())
+                            && departmentRepository.existsByNameIgnoreCase(departmentReqDTO.getName())
+                    ) {
+                        throw new AppException(ErrorCode.DEPARTMENT_NOT_FOUND);
+                    }
+                    department = departmentMapper.partialUpdate(departmentReqDTO, department);
+                    return departmentMapper.toDepartmentResDTO(departmentRepository.save(department));
+                })
+                .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+    }
 }

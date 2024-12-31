@@ -2,6 +2,7 @@ package com.example.sourcebase.controller;
 
 import com.example.sourcebase.domain.dto.reqdto.DepartmentReqDTO;
 import com.example.sourcebase.domain.dto.resdto.DepartmentResDTO;
+import com.example.sourcebase.domain.dto.reqdto.DepartmentReqDTO;
 import com.example.sourcebase.service.IDepartmentService;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
@@ -49,5 +50,16 @@ public class DepartmentRestController {
                         .data(d)
                         .build()
         );
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseData<?>> updatedDepartment(@PathVariable Long id,
+                                                             @Valid @RequestBody DepartmentReqDTO departmentReqDTO) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.UPDATED.getCode())
+                        .message(SuccessCode.UPDATED.getMessage())
+                        .data(departmentService.updateDepartment(id, departmentReqDTO))
+                        .build());
     }
 }
