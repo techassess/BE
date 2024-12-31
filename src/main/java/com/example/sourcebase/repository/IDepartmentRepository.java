@@ -17,4 +17,7 @@ public interface IDepartmentRepository extends JpaRepository<Department, Long> {
             "AND (q.isDeleted = false OR q.isDeleted IS NULL) " +
             "AND (a.isDeleted = false OR a.isDeleted IS NULL)")
     List<Department> findAllDepartmentsWithCriteriaAndQuestions();
+
+    @Query("SELECT COUNT(d) > 0 FROM Department d WHERE lower(d.name) = lower(:name) AND d.deleted = false")
+    boolean existsByNameIgnoreCase(String name);
 }

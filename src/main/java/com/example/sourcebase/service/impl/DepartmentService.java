@@ -1,13 +1,17 @@
 package com.example.sourcebase.service.impl;
 
 import com.example.sourcebase.domain.Department;
+import com.example.sourcebase.domain.dto.reqdto.DepartmentReqDTO;
 import com.example.sourcebase.domain.dto.resdto.CriteriaResDTO;
 import com.example.sourcebase.domain.dto.resdto.DepartmentResDTO;
 import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
+import com.example.sourcebase.exception.AppException;
 import com.example.sourcebase.mapper.CriteriaMapper;
 import com.example.sourcebase.mapper.DepartmentMapper;
 import com.example.sourcebase.repository.IDepartmentRepository;
 import com.example.sourcebase.service.IDepartmentService;
+import com.example.sourcebase.util.ErrorCode;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -80,5 +84,26 @@ public class DepartmentService implements IDepartmentService {
         }).collect(Collectors.toList()); // Trả về danh sách các DepartmentResDTO
     }
 
-
+    @Override
+    @Transactional
+    public DepartmentResDTO updateDepartment(Long id, DepartmentReqDTO departmentReqDTO) {
+        return departmentRepository.findById(id)
+                .map(department -> {
+                    if (departmentReqDTO.getName() != null
+                            && !departmentReqDTO.getName().equalsIgnoreCase(department.getName())
+                            && departmentRepository.existsByNameIgnoreCase(departmentReqDTO.getName())
+                    ) {
+                        throw new AppException(ErrorCode.DEPARTMENT_NOT_FOUND);
+                    }
+                    department = departmentMapper.partialUpdate(departmentReqDTO, department);
+                    if (departmentReqDTO.getName() != null
+                            && !departmentReqDTO.getName().equals(department.getName())
+                            && departmentRepository.existsByNameIgnoreCase(departmentReqDTO.getName())
+                    ) {
+                        throw new AppException(ErrorCode.DEPARTMENT_NOT_FOUND);
+                    }
+                    return departmentMapper.toDepartmentResDTO(departmentRepository.save(department));
+                })
+                .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+    }
 }
