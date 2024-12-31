@@ -37,7 +37,7 @@ public enum ErrorCode {
 
     SUM_POINT_INVALID(40903, "Số point của đánh giá phải bằng tổng số point của các câu hỏi", HttpStatus.CONFLICT),
 
-    DEPARTMENT_CRITERIA_NOT_FOUND(40402, "Department Criteria not found", HttpStatus.NOT_FOUND),
+    DEPARTMENT_CRITERIA_NOT_FOUND(40402, "Criteria not found in department", HttpStatus.NOT_FOUND),
     DEPARTMENT_NOT_FOUND(40403, "Department not found", HttpStatus.NOT_FOUND),
     DEPARTMENT_ALREADY_EXIST(40904, "Department already exist", HttpStatus.CONFLICT),
 
