@@ -19,6 +19,7 @@ public class Department {
     Long id;
     String name;
 
+
     @OneToMany(mappedBy = "department")
 
     Set<DepartmentCriterias> departmentCriterias;

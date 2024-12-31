@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface IDepartmentService {
     List<DepartmentResDTO> getAllDepartments();
+    void deleteDepartment(Long id);
 }
