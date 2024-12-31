@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface IDepartmentRepository extends JpaRepository<Department, Long> {
+    boolean existsByNameIgnoreCaseAndDeletedIsFalse(String name);
 
     @Query("SELECT DISTINCT d FROM Department d " +
             "JOIN FETCH d.departmentCriterias dc " +
