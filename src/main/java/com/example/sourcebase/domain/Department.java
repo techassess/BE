@@ -17,13 +17,14 @@ public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-
     String name;
+
+
 
     @Column(nullable = false)
     boolean deleted = false;
 
-    @OneToMany(mappedBy = "department")
+    @OneToMany(mappedBy = "department", fetch = FetchType.EAGER)
     Set<DepartmentCriterias> departmentCriterias;
 
     @OneToMany(mappedBy = "department")
