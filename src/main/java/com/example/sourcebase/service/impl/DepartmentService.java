@@ -107,12 +107,6 @@ public class DepartmentService implements IDepartmentService {
                         throw new AppException(ErrorCode.DEPARTMENT_NOT_FOUND);
                     }
                     department = departmentMapper.partialUpdate(departmentReqDTO, department);
-                    if (departmentReqDTO.getName() != null
-                            && !departmentReqDTO.getName().equals(department.getName())
-                            && departmentRepository.existsByNameIgnoreCase(departmentReqDTO.getName())
-                    ) {
-                        throw new AppException(ErrorCode.DEPARTMENT_NOT_FOUND);
-                    }
                     return departmentMapper.toDepartmentResDTO(departmentRepository.save(department));
                 })
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
