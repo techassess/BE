@@ -8,6 +8,8 @@ import java.util.List;
 public interface IDepartmentService {
     List<DepartmentResDTO> getAllDepartments();
 
+    void deleteDepartment(Long id);
+
     DepartmentResDTO addDepartment (DepartmentReqDTO departmentReqDTO);
 
     DepartmentResDTO updateDepartment(Long id, DepartmentReqDTO departmentReqDTO);
