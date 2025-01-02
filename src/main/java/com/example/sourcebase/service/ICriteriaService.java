@@ -29,4 +29,6 @@ public interface ICriteriaService {
     CriteriaResDTO addCriterionToDepartment(CriteriaReqDTO criteriaReqDTO, Long departmentId);
 
     CriteriaResDTO updateCriterionInDepartment(CriteriaReqDTO criteriaReqDTO, Long departmentId, Long criteriaId);
+
+    List<CriteriaResDTO> getCriteriaByProjectId(Long projectId);
 }

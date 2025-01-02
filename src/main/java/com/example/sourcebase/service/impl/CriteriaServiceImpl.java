@@ -1,9 +1,6 @@
 package com.example.sourcebase.service.impl;
 
-import com.example.sourcebase.domain.Criteria;
-import com.example.sourcebase.domain.Department;
-import com.example.sourcebase.domain.DepartmentCriterias;
-import com.example.sourcebase.domain.Question;
+import com.example.sourcebase.domain.*;
 import com.example.sourcebase.domain.dto.reqdto.CriteriaReqDTO;
 import com.example.sourcebase.domain.dto.resdto.AnswerResDTO;
 import com.example.sourcebase.domain.dto.resdto.CriteriaResDTO;
@@ -11,10 +8,7 @@ import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import com.example.sourcebase.exception.AppException;
 import com.example.sourcebase.mapper.CriteriaMapper;
 import com.example.sourcebase.mapper.QuestionMapper;
-import com.example.sourcebase.repository.ICriteriaRepository;
-import com.example.sourcebase.repository.IDepartmentCriteriasRepository;
-import com.example.sourcebase.repository.IDepartmentRepository;
-import com.example.sourcebase.repository.IQuestionRepository;
+import com.example.sourcebase.repository.*;
 import com.example.sourcebase.service.ICriteriaService;
 import com.example.sourcebase.util.ErrorCode;
 import jakarta.transaction.Transactional;
@@ -40,6 +34,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
     IDepartmentRepository departmentRepository;
     CriteriaMapper criteriaMapper = CriteriaMapper.INSTANCE;
     QuestionMapper questionMapper = QuestionMapper.INSTANCE;
+    IProjectRepository projectRepository;
 
 
     @Override
@@ -113,7 +108,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
 
         if (criteria.getDepartmentCriterias() != null && !criteria.getDepartmentCriterias().isEmpty()) {
             List<QuestionResDTO> questionResDTOs = criteria.getDepartmentCriterias().stream()
-                    .filter(dc -> dc.getDepartment().getId().equals(departmentId)) // Lọc theo departmentId
+                    .filter(dc -> dc.getDepartment().getId().equals(departmentId))
                     .map(dc -> {
                         Question question = dc.getQuestion();
                         if (question != null && !question.isDeleted()) {
@@ -255,5 +250,49 @@ public class CriteriaServiceImpl implements ICriteriaService {
         dcs.forEach(dc -> dc.setCriteria(toBeUpdated));
         List<DepartmentCriterias> savedDcs = dcRepository.saveAll(dcs);
         return criteriaMapper.toCriteriaResDTO(savedDcs.getFirst().getCriteria());
+    }
+
+    @Override
+    public List<CriteriaResDTO> getCriteriaByProjectId(Long projectId) {
+        Project project = projectRepository.findById(projectId).orElse(null);
+        Long departmentId = project.getDepartment().getId();
+
+        List<Criteria> criterias = criteriaRepository.findAllCriteriaByDepartmentId(departmentId);
+
+        List<CriteriaResDTO> criteriaResDTOs = criterias.stream()
+                .map(criteria -> {
+                    CriteriaResDTO criteriaResDTO = criteriaMapper.toCriteriaResDTO(criteria);
+
+                    if (criteria.getDepartmentCriterias() != null && !criteria.getDepartmentCriterias().isEmpty()) {
+                        List<QuestionResDTO> questionResDTOs = criteria.getDepartmentCriterias().stream()
+                                .filter(dc -> dc.getDepartment().getId().equals(departmentId))
+                                .map(dc -> {
+                                    Question question = dc.getQuestion();
+                                    if (question != null && !question.isDeleted()) {
+                                        QuestionResDTO questionResDTO = questionMapper.toQuestionResDTO(question);
+
+                                        List<AnswerResDTO> answerResDTOs = question.getAnswers() != null
+                                                ? question.getAnswers().stream()
+                                                .map(criteriaMapper::toAnswerResDTO)
+                                                .collect(Collectors.toList())
+                                                : null;
+                                        questionResDTO.setAnswers(answerResDTOs);
+
+                                        return questionResDTO;
+                                    }
+                                    return null;
+                                })
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
+
+                        criteriaResDTO.setQuestions(questionResDTOs);
+                    } else {
+                        criteriaResDTO.setQuestions(null);
+                    }
+
+                    return criteriaResDTO;
+                })
+                .collect(Collectors.toList());
+        return criteriaResDTOs;
     }
 }
