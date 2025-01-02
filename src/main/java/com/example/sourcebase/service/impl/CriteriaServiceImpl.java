@@ -224,21 +224,20 @@ public class CriteriaServiceImpl implements ICriteriaService {
     @Override
     @Transactional
     public CriteriaResDTO updateCriterionInDepartment(CriteriaReqDTO criteriaReqDTO, Long departmentId, Long criteriaId) {
-        // Check if criteria exist, if not create new criteria
-        if (criteriaRepository.existsByTitleIgnoreCase(criteriaReqDTO.getTitle())) {
-            throw new AppException(ErrorCode.CRITERIA_EXISTED);
-        }
-
         // Check if there is any criteria in department
         List<DepartmentCriterias> dcs = dcRepository.findByCriteria_IdAndDepartment_Id(criteriaId, departmentId);
         if (dcs.isEmpty()) {
             throw new AppException(ErrorCode.DEPARTMENT_CRITERIA_NOT_FOUND);
         }
 
-        Criteria newCriteria = criteriaMapper.toEntity(criteriaReqDTO);
-        Criteria savedCriteria = criteriaRepository.save(newCriteria);
+        if (dcRepository.isCriteriaTitleExistsInDepartment(departmentId, criteriaReqDTO.getTitle())
+                && !dcs.getFirst().getCriteria().getTitle().equalsIgnoreCase(criteriaReqDTO.getTitle())) {
+            throw new AppException(ErrorCode.CRITERIA_EXISTED);
+        }
 
-        dcs.forEach(dc -> dc.setCriteria(savedCriteria));
+        Criteria c = dcs.getFirst().getCriteria();
+        Criteria toBeUpdated = criteriaMapper.partialUpdate(criteriaReqDTO, c);
+        dcs.forEach(dc -> dc.setCriteria(toBeUpdated));
         List<DepartmentCriterias> savedDcs = dcRepository.saveAll(dcs);
         return criteriaMapper.toCriteriaResDTO(savedDcs.getFirst().getCriteria());
     }
