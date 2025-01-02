@@ -32,7 +32,6 @@ public class QuestionReqDto {
     Integer point;
 
 
-
     @NotNull(message = "Answer cannot be null")
     @NotEmpty(message = "Answers cannot be empty")
     List<AnswerReqDto> answers;
