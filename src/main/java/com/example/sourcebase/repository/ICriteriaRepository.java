@@ -32,4 +32,17 @@ public interface ICriteriaRepository extends JpaRepository<Criteria, Long> {
 
     @Query("SELECT COUNT(c) > 0 FROM Criteria c WHERE lower(c.title) = lower(:title) AND c.isDeleted = false")
     boolean existsByTitleIgnoreCase(String title);
+
+    @Query("SELECT c FROM Criteria c " +
+            "JOIN c.departmentCriterias dc " +
+            "WHERE c.isDeleted = false " +
+            "AND dc.department.id = :departmentId")
+    List<Criteria> findAllCriteriaByDepartmentId(@Param("departmentId") Long departmentId);
+
+    @Query("select sum(q.point) from Criteria c " +
+            "join c.questions q " +
+            "where c.id = :criteriaId" +
+            " and q.isDeleted = false" +
+            " and c.isDeleted = false")
+    Integer getSumOfQuestionsPointByCriteriaId(Long criteriaId);
 }

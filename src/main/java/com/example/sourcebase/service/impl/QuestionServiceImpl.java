@@ -137,17 +137,17 @@ public class QuestionServiceImpl implements IQuestionService {
     public QuestionResDTO addQuestionAndAnswers(AddQuestionReqDto addQuestionReqDto) {
         Question question = questionMapper.toQuestion(addQuestionReqDto);
 
-        // validate sum of point of answers: sum of point of answers must equal point of question
-        int sumPoint = addQuestionReqDto.getAnswers().stream()
-                .mapToInt(AnswerReqDto::getValue)
-                .sum();
-
         if (addQuestionReqDto.getCriteriaId() != null) {
             Criteria criteria = criteriaRepository.findById(addQuestionReqDto.getCriteriaId())
                     .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
             // update point of criteria
             if (criteria != null) {
-                criteria.setPoint(criteria.getPoint() + question.getPoint());
+                Integer sumOfQuestionsPointByCriteriaId = criteriaRepository.getSumOfQuestionsPointByCriteriaId(criteria.getId());
+                if (sumOfQuestionsPointByCriteriaId == null) {
+                    sumOfQuestionsPointByCriteriaId = 0;
+                }
+                criteria.setPoint(sumOfQuestionsPointByCriteriaId
+                        + question.getPoint());
                 criteriaRepository.save(criteria);
             }
             question.setCriteria(criteria);
