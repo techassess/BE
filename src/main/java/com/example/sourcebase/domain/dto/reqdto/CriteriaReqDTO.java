@@ -1,8 +1,7 @@
 package com.example.sourcebase.domain.dto.reqdto;
 
-import jakarta.validation.constraints.Min;
+import com.example.sourcebase.domain.enumeration.ETypeCriteria;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,4 +23,7 @@ public class CriteriaReqDTO {
     String title;
 
     Integer point;
+
+    ETypeCriteria visibleFor = ETypeCriteria.ALL_MEMBER;
+
 }

@@ -1,6 +1,9 @@
 package com.example.sourcebase.service.impl;
 
 import com.example.sourcebase.domain.Criteria;
+import com.example.sourcebase.domain.Department;
+import com.example.sourcebase.domain.DepartmentCriterias;
+import com.example.sourcebase.domain.Question;
 import com.example.sourcebase.domain.dto.reqdto.CriteriaReqDTO;
 import com.example.sourcebase.domain.dto.resdto.AnswerResDTO;
 import com.example.sourcebase.domain.dto.resdto.CriteriaResDTO;
@@ -9,6 +12,8 @@ import com.example.sourcebase.exception.AppException;
 import com.example.sourcebase.mapper.CriteriaMapper;
 import com.example.sourcebase.mapper.QuestionMapper;
 import com.example.sourcebase.repository.ICriteriaRepository;
+import com.example.sourcebase.repository.IDepartmentCriteriasRepository;
+import com.example.sourcebase.repository.IDepartmentRepository;
 import com.example.sourcebase.repository.IQuestionRepository;
 import com.example.sourcebase.service.ICriteriaService;
 import com.example.sourcebase.util.ErrorCode;
@@ -21,8 +26,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +37,8 @@ public class CriteriaServiceImpl implements ICriteriaService {
 
     ICriteriaRepository criteriaRepository;
     IQuestionRepository questionRepository;
+    IDepartmentCriteriasRepository dcRepository;
+    IDepartmentRepository departmentRepository;
     CriteriaMapper criteriaMapper = CriteriaMapper.INSTANCE;
     QuestionMapper questionMapper = QuestionMapper.INSTANCE;
 
@@ -88,19 +95,44 @@ public class CriteriaServiceImpl implements ICriteriaService {
     }
 
     @Override
-    public CriteriaResDTO getCriteriaById(Long id) {
-        CriteriaResDTO criteriaResDTO = criteriaRepository.findById(id)
-                .map(criteriaMapper::toCriteriaResDTO)
+    public CriteriaResDTO getCriteriaById(Long id, Long departmentId) {
+        Criteria criteria = criteriaRepository.findById(id, departmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
 
-        criteriaResDTO.setQuestions(criteriaResDTO.getQuestions().stream()
-                .filter(question -> !question.isDeleted())
-                .collect(Collectors.toList()));
+        CriteriaResDTO criteriaResDTO = criteriaMapper.toCriteriaResDTO(criteria);
+
+        if (criteria.getDepartmentCriterias() != null && !criteria.getDepartmentCriterias().isEmpty()) {
+            List<QuestionResDTO> questionResDTOs = criteria.getDepartmentCriterias().stream()
+                    .filter(dc -> dc.getDepartment().getId().equals(departmentId)) // Lọc theo departmentId
+                    .map(dc -> {
+                        Question question = dc.getQuestion();
+                        if (question != null && !question.isDeleted()) {
+                            QuestionResDTO questionResDTO = questionMapper.toQuestionResDTO(question);
+
+                            List<AnswerResDTO> answerResDTOs = question.getAnswers() != null
+                                    ? question.getAnswers().stream()
+                                    .map(criteriaMapper::toAnswerResDTO)
+                                    .collect(Collectors.toList())
+                                    : null;
+                            questionResDTO.setAnswers(answerResDTOs);
+
+                            return questionResDTO;
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            criteriaResDTO.setQuestions(questionResDTOs);
+        } else {
+            criteriaResDTO.setQuestions(null);
+        }
 
         return criteriaResDTO;
     }
 
     @Override
+    @Transactional
     public CriteriaResDTO addCriterion(CriteriaReqDTO criteriaReqDTO) {
         Criteria newCriteria = criteriaMapper.toEntity(criteriaReqDTO);
         if (criteriaRepository.existsByTitleIgnoreCase(newCriteria.getTitle())) {
@@ -111,6 +143,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
     }
 
     @Override
+    @Transactional
     public CriteriaResDTO updateCriterion(Long id, CriteriaReqDTO criteriaReqDTO) {
         return criteriaRepository.findById(id)
                 .map(criteria -> {
@@ -151,9 +184,67 @@ public class CriteriaServiceImpl implements ICriteriaService {
     }
 
     @Override
+    @Transactional
+    public void deleteCriterionByCriteriaIdAndDepartmentId(Long criteriaId, Long departmentId) {
+        List<DepartmentCriterias> dcs = dcRepository.findByCriteria_IdAndDepartment_Id(criteriaId, departmentId);
+        System.out.println(criteriaId + " " + departmentId);
+        if (dcs != null && !dcs.isEmpty()) {
+            dcs.forEach(dc -> {
+                dc.getCriteria().getQuestions().forEach(question -> {
+                    question.setDeleted(true);
+                    question.getAnswers().forEach(answer -> answer.setDeleted(true));
+                });
+                dc.getCriteria().setDeleted(true);
+            });
+            dcRepository.deleteAll(dcs);
+        }
+    }
+
+    @Override
     public Page<QuestionResDTO> findQuestionsByCriterionId(Long criteriaId, int page, int size, String sortBy, boolean asc) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(asc ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy));
         return questionRepository.findAllByCriteria_Id(criteriaId, pageable).map(questionMapper::toQuestionResDTO);
     }
 
+    @Override
+    @Transactional
+    public CriteriaResDTO addCriterionToDepartment(CriteriaReqDTO criteriaReqDTO, Long departmentId) {
+        Criteria newCriteria = criteriaMapper.toEntity(criteriaReqDTO);
+        if (criteriaRepository.existsByTitleIgnoreCase(newCriteria.getTitle())) {
+            throw new AppException(ErrorCode.CRITERIA_EXISTED);
+        }
+        Criteria savedCriteria = criteriaRepository.save(newCriteria);
+
+        Department d = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+
+        DepartmentCriterias dc = dcRepository.save(DepartmentCriterias.builder()
+                .criteria(savedCriteria)
+                .department(d)
+                .build());
+
+        return criteriaMapper.toCriteriaResDTO(dc.getCriteria());
+    }
+
+    @Override
+    @Transactional
+    public CriteriaResDTO updateCriterionInDepartment(CriteriaReqDTO criteriaReqDTO, Long departmentId, Long criteriaId) {
+        // Check if criteria exist, if not create new criteria
+        if (criteriaRepository.existsByTitleIgnoreCase(criteriaReqDTO.getTitle())) {
+            throw new AppException(ErrorCode.CRITERIA_EXISTED);
+        }
+
+        // Check if there is any criteria in department
+        List<DepartmentCriterias> dcs = dcRepository.findByCriteria_IdAndDepartment_Id(criteriaId, departmentId);
+        if (dcs.isEmpty()) {
+            throw new AppException(ErrorCode.DEPARTMENT_CRITERIA_NOT_FOUND);
+        }
+
+        Criteria newCriteria = criteriaMapper.toEntity(criteriaReqDTO);
+        Criteria savedCriteria = criteriaRepository.save(newCriteria);
+
+        dcs.forEach(dc -> dc.setCriteria(savedCriteria));
+        List<DepartmentCriterias> savedDcs = dcRepository.saveAll(dcs);
+        return criteriaMapper.toCriteriaResDTO(savedDcs.getFirst().getCriteria());
+    }
 }

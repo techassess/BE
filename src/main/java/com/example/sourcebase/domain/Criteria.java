@@ -1,10 +1,13 @@
 package com.example.sourcebase.domain;
 
+import com.example.sourcebase.domain.enumeration.ETypeCriteria;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "criterias")
@@ -20,6 +23,9 @@ public class Criteria {
 
     String title;
 
+    @Enumerated(EnumType.STRING)
+    ETypeCriteria visibleFor;
+
     int point;
 
     @OneToMany(mappedBy = "criteria", fetch = FetchType.LAZY)
@@ -27,4 +33,7 @@ public class Criteria {
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "criteria", fetch = FetchType.LAZY)
+    Set<DepartmentCriterias> departmentCriterias;
 }
