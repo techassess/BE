@@ -26,8 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,7 +63,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
                                                 .collect(Collectors.toList());
                                         questionResDTO.setAnswers(answerResDTOs);
                                     } else {
-                                        questionResDTO.setAnswers(null); // Không có câu trả lời
+                                        questionResDTO.setAnswers(new ArrayList<>()); // Không có câu trả lời
                                     }
 
                                     return questionResDTO;
@@ -72,12 +71,23 @@ public class CriteriaServiceImpl implements ICriteriaService {
                                 .collect(Collectors.toList());
                         criteriaResDTO.setQuestions(questionResDTOs);
                     } else {
-                        criteriaResDTO.setQuestions(null); // Không có câu hỏi
+                        criteriaResDTO.setQuestions(new ArrayList<>()); // Không có câu hỏi
                     }
 
                     return criteriaResDTO;
                 })
                 .collect(Collectors.toList());
+
+        // sort in order: criteria with questions first, criteria without questions last
+        criteriaResDTOs.sort((c1, c2) -> {
+            if (c1.getQuestions().isEmpty() && !c2.getQuestions().isEmpty()) {
+                return 1;
+            } else if (!c1.getQuestions().isEmpty() && c2.getQuestions().isEmpty()) {
+                return -1;
+            } else {
+                return c1.getId().compareTo(c2.getId());
+            }
+        });
         return criteriaResDTOs;
     }
 
