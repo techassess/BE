@@ -5,7 +5,6 @@ CREATE TABLE department
     CONSTRAINT pk_department PRIMARY KEY (id)
 );
 
-INSERT INTO department (name) VALUES ('IT');
 
 CREATE TABLE department_criterias
 (
