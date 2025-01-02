@@ -15,5 +15,6 @@ import java.util.List;
 public class DepartmentResDTO {
     Long id;
     String name;
+    Boolean deleted;
     List<CriteriaResDTO> criteria;
 }
