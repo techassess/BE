@@ -2,6 +2,7 @@ package com.example.sourcebase.service.impl;
 
 import com.example.sourcebase.domain.Answer;
 import com.example.sourcebase.domain.Criteria;
+import com.example.sourcebase.domain.DepartmentCriterias;
 import com.example.sourcebase.domain.Question;
 import com.example.sourcebase.domain.dto.reqdto.AddQuestionReqDto;
 import com.example.sourcebase.domain.dto.reqdto.AnswerReqDto;
@@ -10,9 +11,7 @@ import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import com.example.sourcebase.exception.AppException;
 import com.example.sourcebase.mapper.AnswerMapper;
 import com.example.sourcebase.mapper.QuestionMapper;
-import com.example.sourcebase.repository.IAnswerRepository;
-import com.example.sourcebase.repository.ICriteriaRepository;
-import com.example.sourcebase.repository.IQuestionRepository;
+import com.example.sourcebase.repository.*;
 import com.example.sourcebase.service.IQuestionService;
 import com.example.sourcebase.util.ErrorCode;
 import lombok.AccessLevel;
@@ -38,6 +37,8 @@ public class QuestionServiceImpl implements IQuestionService {
     QuestionMapper questionMapper = QuestionMapper.INSTANCE;
     AnswerMapper answerMapper = AnswerMapper.INSTANCE;
     IAnswerRepository answerRepository;
+    IDepartmentCriteriasRepository departmentCriteriasRepository;
+    IDepartmentRepository departmentRepository;
 
     public List<QuestionResDTO> getAllQuestionByCriteriaID(Long criteriaId) {
         List<Question> questionResDTOs = questionRepository.findAllQuestionByCriteriaId(criteriaId);
@@ -163,6 +164,13 @@ public class QuestionServiceImpl implements IQuestionService {
                 .collect(Collectors.toList());
         question.setAnswers(answers);
         answerRepository.saveAll(answers);
+
+        // xử lý thêm vào bảng DepartmentCiterias
+        DepartmentCriterias dc = new DepartmentCriterias();
+        dc.setDepartment(departmentRepository.findById(addQuestionReqDto.getDepartmentId()).orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND)));
+        dc.setCriteria(criteriaRepository.findById(addQuestionReqDto.getCriteriaId()).orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND)));
+        dc.setQuestion(question);
+        departmentCriteriasRepository.save(dc);
         return questionMapper.toQuestionResDTO(question);
     }
 }
