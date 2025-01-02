@@ -1,10 +1,9 @@
 INSERT INTO department (name, deleted)
-VALUES ('Customer Service', false),
-       ('Sales department', false),
-       ('Audit', false),
-       ('Accounting', false),
-       ('Quality', false),
-       ('Research & Development ', false);
+VALUES ('Phát Triển', false),
+       ('Kinh Doanh', false),
+       ('Nhân Sự', false),
+       ('Tổng Vụ', false);
+
 
 
 INSERT INTO department_criterias (department_id, criterias_id, question_id)
@@ -17,11 +16,7 @@ VALUES (1, 1, 1),
        (4, 4, 4),
        (4, 4, 5),
        (5, 5, 5),
-       (5, 5, 6),
-       (6, 6, 6),
-       (6, 6, 7),
-       (7, 7, 7),
-       (7, 7, 8);
+       (5, 5, 6);
 
 
 
