@@ -118,4 +118,14 @@ public class CriteriaRestController {
                                         dcReqDto.getCriteriaId()))
                         .build());
     }
+
+    @GetMapping("/{projectId}")
+    public ResponseEntity<ResponseData<?>> getListCriteriaByProjectId(@PathVariable Long projectId) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                        .data(criteriaService.getCriteriaByProjectId(projectId))
+                        .build());
+    }
 }
