@@ -38,5 +38,5 @@ public interface ICriteriaRepository extends JpaRepository<Criteria, Long> {
             "where c.id = :criteriaId" +
             " and q.isDeleted = false" +
             " and c.isDeleted = false")
-    int getSumOfQuestionsPointByCriteriaId(Long criteriaId);
+    Integer getSumOfQuestionsPointByCriteriaId(Long criteriaId);
 }

@@ -142,8 +142,12 @@ public class QuestionServiceImpl implements IQuestionService {
                     .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
             // update point of criteria
             if (criteria != null) {
-                int sumOfQuestionsPointByCriteriaId = criteriaRepository.getSumOfQuestionsPointByCriteriaId(criteria.getId());
-                criteria.setPoint(sumOfQuestionsPointByCriteriaId + question.getPoint());
+                Integer sumOfQuestionsPointByCriteriaId = criteriaRepository.getSumOfQuestionsPointByCriteriaId(criteria.getId());
+                if (sumOfQuestionsPointByCriteriaId == null) {
+                    sumOfQuestionsPointByCriteriaId = 0;
+                }
+                criteria.setPoint(sumOfQuestionsPointByCriteriaId
+                        + question.getPoint());
                 criteriaRepository.save(criteria);
             }
             question.setCriteria(criteria);
