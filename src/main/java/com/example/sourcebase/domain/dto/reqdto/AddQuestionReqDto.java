@@ -35,4 +35,7 @@ public class AddQuestionReqDto {
 
     @NotNull(message = "Answer cannot be null")
     List<AnswerReqDto> answers;
+
+    @NotNull(message = "Department cannot be null")
+    Long departmentId;
 }

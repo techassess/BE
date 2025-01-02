@@ -163,6 +163,8 @@ public class QuestionServiceImpl implements IQuestionService {
                 .collect(Collectors.toList());
         question.setAnswers(answers);
         answerRepository.saveAll(answers);
+
+        // xử lý thêm vào bảng DepartmentCiterias
         return questionMapper.toQuestionResDTO(question);
     }
 }
