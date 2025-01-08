@@ -1,13 +1,11 @@
 package com.example.sourcebase.controller;
 
 import com.example.sourcebase.domain.dto.reqdto.AssessReqDTO;
-import com.example.sourcebase.repository.ICriteriaRepository;
 import com.example.sourcebase.service.IAssessService;
 import com.example.sourcebase.service.IRatedRankService;
 import com.example.sourcebase.util.ErrorCode;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,11 +16,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/assess")
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Transactional
 public class AssessRestController {
     IAssessService assessService;
     IRatedRankService ratedRankService;
-    ICriteriaRepository criteriaRepository;
 
     @PostMapping("/save-assess")
     @CrossOrigin
@@ -84,7 +80,7 @@ public class AssessRestController {
                 ResponseData.builder()
                         .code(SuccessCode.GET_SUCCESSFUL.getCode())
                         .message(SuccessCode.GET_SUCCESSFUL.getMessage())
-                        .data(ratedRankService.getMapManagerRatingPointToUser(Long.parseLong(userId)))
+                        .data(ratedRankService.getAverageValueOfCriteriaByManager(Long.parseLong(userId)))
                         .build()
         );
     }

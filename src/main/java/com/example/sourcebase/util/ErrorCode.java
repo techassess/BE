@@ -42,6 +42,8 @@ public enum ErrorCode {
     DEPARTMENT_ALREADY_EXIST(40904, "Department already exist", HttpStatus.CONFLICT),
 
     MANAGER_ASSESS_IS_NOT_EXIST(40404, "Không có đánh giá của quản lý", HttpStatus.NOT_FOUND),
+
+    CRITERIA_ID_NOT_MATCH(40905, "Criteria id not match", HttpStatus.CONFLICT),
     ;
     int code;
     String message;
