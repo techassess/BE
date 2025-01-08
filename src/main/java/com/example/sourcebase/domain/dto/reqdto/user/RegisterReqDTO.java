@@ -22,4 +22,6 @@ public class RegisterReqDTO {
     String password;
     String position;
     String level;
+    Long departmentId;
+
 }
