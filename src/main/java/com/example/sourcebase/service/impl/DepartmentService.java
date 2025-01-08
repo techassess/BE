@@ -124,4 +124,52 @@ public class DepartmentService implements IDepartmentService {
                 })
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
     }
+
+    @Override
+    public DepartmentResDTO getDetailDepartment(Long id) {
+        // Tìm phòng ban theo ID
+        Department department = departmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Department not found"));
+
+        // Map sang DTO
+        DepartmentResDTO departmentResDTO = departmentMapper.toDepartmentResDTO(department);
+
+        // Lấy danh sách tiêu chí và các câu hỏi của phòng ban
+        Map<Long, CriteriaResDTO> criteriaMap = department.getDepartmentCriterias().stream()
+                .filter(departmentCriteria -> !departmentCriteria.getCriteria().isDeleted())
+                .map(departmentCriteria -> {
+                    CriteriaResDTO criteriaResDTO = criteriaMapper.toCriteriaResDTO(departmentCriteria.getCriteria());
+
+                    List<QuestionResDTO> questionResDTOList = department.getDepartmentCriterias().stream()
+                            .filter(dc -> dc.getCriteria().equals(departmentCriteria.getCriteria()))
+                            .map(dc -> {
+                                if (dc.getQuestion() != null && !dc.getQuestion().isDeleted()) {
+                                    QuestionResDTO questionResDTO = criteriaMapper.toQuestionResDTO(dc.getQuestion());
+                                    if (dc.getQuestion().getAnswers() != null) {
+                                        questionResDTO.setAnswers(dc.getQuestion().getAnswers().stream()
+                                                .filter(answer -> !answer.isDeleted())
+                                                .map(criteriaMapper::toAnswerResDTO)
+                                                .collect(Collectors.toList()));
+                                    }
+                                    return questionResDTO;
+                                }
+                                return null;
+                            })
+                            .filter(questionResDTO -> questionResDTO != null)
+                            .collect(Collectors.toList());
+
+                    criteriaResDTO.setQuestions(questionResDTOList);
+                    return criteriaResDTO;
+                })
+                .collect(Collectors.toMap(
+                        CriteriaResDTO::getId,
+                        criteriaResDTO -> criteriaResDTO,
+                        (existing, replacement) -> existing
+                ));
+
+        // Set danh sách tiêu chí vào DTO của phòng ban
+        departmentResDTO.setCriteria(criteriaMap.values().stream().collect(Collectors.toList()));
+
+        return departmentResDTO;
+    }
+
 }

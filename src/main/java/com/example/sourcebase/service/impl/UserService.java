@@ -1,6 +1,7 @@
 package com.example.sourcebase.service.impl;
 
 import com.example.sourcebase.domain.*;
+import com.example.sourcebase.domain.dto.resdto.DepartmentResDTO;
 import com.example.sourcebase.domain.dto.resdto.user.UserDetailResDTO;
 import com.example.sourcebase.domain.dto.resdto.user.UserProjectResDTO;
 import com.example.sourcebase.repository.*;
@@ -118,24 +119,81 @@ public class UserService implements IUserService, UserDetailsService {
         return userMapper.toUserDetailResDTO(userRepository.findUserByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 
+//    @Override
+//    public List<UserResDTO> getAllUser() {
+//        List<User> users = userRepository.findAll();
+//        List<UserResDTO> userResDTOS = new ArrayList<>();
+//        for (User user : users) {
+//            UserResDTO userResDTO = userMapper.toUserResDTO(user);
+//            if (!user.getUserProjects().isEmpty()) {
+//                List<UserProjectResDTO> userProjectResDTOS = new ArrayList<>();
+//                for (UserProject userProject : user.getUserProjects()) {
+//                    UserProjectResDTO userProjectResDTO = new UserProjectResDTO();
+//                    userProjectResDTO.setProjectId(userProject.getProject().getId());
+//                    userProjectResDTO.setUserId(userProject.getUser().getId());
+//                    userProjectResDTOS.add(userProjectResDTO);
+//                }
+//                userResDTO.setUserProjects(userProjectResDTOS);
+//            }
+//            userResDTOS.add(userResDTO);
+//        }
+//        return userResDTOS;
+//    }
+
+//    @Override
+//    public UserResDTO getUserById(Long id) {
+//        User user = userRepository.findById(id)
+//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+//        UserResDTO userResDTO = userMapper.toUserResDTO(user);
+//        if (!user.getUserProjects().isEmpty()) {
+//            List<UserProjectResDTO> userProjectResDTOS = new ArrayList<>();
+//            for (UserProject userProject : user.getUserProjects()) {
+//                UserProjectResDTO userProjectResDTO = new UserProjectResDTO();
+//                userProjectResDTO.setProjectId(userProject.getProject().getId());
+//                userProjectResDTO.setUserId(userProject.getUser().getId());
+//                userProjectResDTOS.add(userProjectResDTO);
+//            }
+//            userResDTO.setUserProjects(userProjectResDTOS);
+//        }
+//        return userResDTO;
+//    }
+
     @Override
     public List<UserResDTO> getAllUser() {
         List<User> users = userRepository.findAll();
         List<UserResDTO> userResDTOS = new ArrayList<>();
+
         for (User user : users) {
             UserResDTO userResDTO = userMapper.toUserResDTO(user);
+
             if (!user.getUserProjects().isEmpty()) {
                 List<UserProjectResDTO> userProjectResDTOS = new ArrayList<>();
+
                 for (UserProject userProject : user.getUserProjects()) {
                     UserProjectResDTO userProjectResDTO = new UserProjectResDTO();
                     userProjectResDTO.setProjectId(userProject.getProject().getId());
                     userProjectResDTO.setUserId(userProject.getUser().getId());
+
+                    // Lấy thông tin về Department từ Project
+                    Project project = userProject.getProject();
+                    Department department = project.getDepartment(); // Lấy phòng ban từ Project
+                    if (department != null) {
+                        DepartmentResDTO departmentResDTO = new DepartmentResDTO();
+                        departmentResDTO.setId(department.getId());
+                        departmentResDTO.setName(department.getName());
+                        // Nếu cần thêm các thuộc tính khác của Department, có thể set ở đây
+                        userProjectResDTO.setDepartment(departmentResDTO);
+                    }
+
                     userProjectResDTOS.add(userProjectResDTO);
                 }
+
                 userResDTO.setUserProjects(userProjectResDTOS);
             }
+
             userResDTOS.add(userResDTO);
         }
+
         return userResDTOS;
     }
 
@@ -143,19 +201,33 @@ public class UserService implements IUserService, UserDetailsService {
     public UserResDTO getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         UserResDTO userResDTO = userMapper.toUserResDTO(user);
+
+        // Nếu người dùng có dự án, lấy thông tin về dự án và phòng ban
         if (!user.getUserProjects().isEmpty()) {
             List<UserProjectResDTO> userProjectResDTOS = new ArrayList<>();
             for (UserProject userProject : user.getUserProjects()) {
                 UserProjectResDTO userProjectResDTO = new UserProjectResDTO();
                 userProjectResDTO.setProjectId(userProject.getProject().getId());
                 userProjectResDTO.setUserId(userProject.getUser().getId());
+
+                // Lấy thông tin về Department từ Project
+                Project project = userProject.getProject();
+                Department department = project.getDepartment();  // Lấy phòng ban từ Project
+                DepartmentResDTO departmentResDTO = new DepartmentResDTO();
+                departmentResDTO.setId(department.getId());
+                departmentResDTO.setName(department.getName());
+//            departmentResDTO.setDeleted(department.getDeleted());
+
+                userProjectResDTO.setDepartment(departmentResDTO);  // Set thông tin Department vào DTO
                 userProjectResDTOS.add(userProjectResDTO);
             }
             userResDTO.setUserProjects(userProjectResDTOS);
         }
         return userResDTO;
     }
+
 
     @Override
     public boolean deleteUser(Long id) {

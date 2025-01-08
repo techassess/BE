@@ -40,6 +40,16 @@ public class DepartmentRestController {
         );
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseData<?>> getDepartmentById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.GET_SUCCESS.getCode())
+                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                        .data(departmentService.getDetailDepartment(id))
+                        .build()
+        );
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
         try {
