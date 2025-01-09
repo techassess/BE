@@ -38,11 +38,6 @@ public class GlobalExceptionHandler {
                 error.setMessage(ErrorCode.USER_NOT_FOUND.getMessage());
             }
             case AppException appException -> error.setCode(appException.getErrorCode().getCode());
-            case IllegalArgumentException illegalArgumentException -> {
-                error.setError("ILLEGAL ARGUMENT");
-                error.setMessage(ErrorCode.ILLEGAL_ARGUMENT.getMessage());
-                error.setCode(ErrorCode.ILLEGAL_ARGUMENT.getCode());
-            }
             case RuntimeException runtimeException -> {
                 error.setError("PathVariable Invalid");
                 error.setMessage(message);

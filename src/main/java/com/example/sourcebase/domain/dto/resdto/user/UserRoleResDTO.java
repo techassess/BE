@@ -1,15 +1,13 @@
 package com.example.sourcebase.domain.dto.resdto.user;
 
-import com.example.sourcebase.domain.Role;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.example.sourcebase.domain.dto.resdto.RoleDTO;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class UserRoleResDTO {
-    Role role;
+    private RoleDTO role;
 }

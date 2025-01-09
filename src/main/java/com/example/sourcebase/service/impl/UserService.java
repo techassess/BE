@@ -1,18 +1,20 @@
 package com.example.sourcebase.service.impl;
 
 import com.example.sourcebase.domain.*;
+import com.example.sourcebase.domain.dto.reqdto.user.RegisterReqDTO;
+import com.example.sourcebase.domain.dto.reqdto.user.UserLoginReqDTO;
 import com.example.sourcebase.domain.dto.resdto.DepartmentResDTO;
 import com.example.sourcebase.domain.dto.resdto.user.UserDetailResDTO;
 import com.example.sourcebase.domain.dto.resdto.user.UserProjectResDTO;
-import com.example.sourcebase.repository.*;
-import com.example.sourcebase.domain.dto.reqdto.user.RegisterReqDTO;
-import com.example.sourcebase.domain.dto.reqdto.user.UserLoginReqDTO;
 import com.example.sourcebase.domain.dto.resdto.user.UserResDTO;
+import com.example.sourcebase.exception.AppException;
 import com.example.sourcebase.mapper.UserMapper;
+import com.example.sourcebase.repository.*;
 import com.example.sourcebase.service.IUserService;
 import com.example.sourcebase.util.ErrorCode;
-
-import com.example.sourcebase.util.*;
+import com.example.sourcebase.util.JwtTokenProvider;
+import com.example.sourcebase.util.Log;
+import com.example.sourcebase.util.SuccessCode;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,8 +23,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.example.sourcebase.exception.AppException;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -60,13 +59,14 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
+    @Transactional
     public UserResDTO register(RegisterReqDTO registerReqDTO, MultipartFile avatar) throws IOException {
         if (userRepository.existsUserByEmailIgnoreCaseOrUsernameIgnoreCaseOrPhoneNumber(
                 registerReqDTO.getEmail(),
                 registerReqDTO.getUsername(),
                 registerReqDTO.getPhoneNumber())) {
-            log.LogError(ErrorCode.USERNAME_EXISTS);
-            throw new AppException(ErrorCode.USERNAME_EXISTS);
+            log.LogError(ErrorCode.MAIL_PHONE_USERNAME_ALREADY_EXISTED);
+            throw new AppException(ErrorCode.MAIL_PHONE_USERNAME_ALREADY_EXISTED);
         }
         FileInfo fileInfo = uploadService.saveAvatar(avatar);
 
@@ -76,6 +76,7 @@ public class UserService implements IUserService, UserDetailsService {
         userNew.setCreatedAt(LocalDateTime.now());
         userNew.setActive(true);
         User createdUser = userRepository.save(userNew);
+
         saveUserRole(userNew, roleRepository.findById(2L).orElseThrow(() -> new NoSuchElementException("Role not found")));
         saveRank(userNew, registerReqDTO.getPosition(), registerReqDTO.getLevel());
         UserResDTO resultUserResDTO = userMapper.toUserResDTO(createdUser);
@@ -230,6 +231,7 @@ public class UserService implements IUserService, UserDetailsService {
 
 
     @Override
+    @Transactional
     public boolean deleteUser(Long id) {
         try {
             Optional<User> userOpt = userRepository.findById(id);
@@ -265,8 +267,8 @@ public class UserService implements IUserService, UserDetailsService {
             }
         }
 
-        User userToUpdate = userMapper.toUser(request);
-        existingUser.setFileInfo(fileInfo);
+        User userToUpdate = userMapper.partialUpdate(request, existingUser);
+        userToUpdate.setFileInfo(fileInfo);
 //        existingUser.setName(userToUpdate.getName());
 //        existingUser.setPhoneNumber(userToUpdate.getPhoneNumber());
 //        existingUser.setEmail(userToUpdate.getEmail());
@@ -277,8 +279,10 @@ public class UserService implements IUserService, UserDetailsService {
 //        existingUser.setDob(userToUpdate.getDob());
 //        existingUser.setUserRoles(userToUpdate.getUserRoles());
 //        existingUser.setUserProjects(userToUpdate.getUserProjects());
+        saveRank(userToUpdate, request.getPosition(), request.getLevel());
 
-        User updatedUser = userRepository.save(existingUser);
+        User updatedUser = userRepository.save(userToUpdate);
+        System.out.println("User to update: " + userMapper.toUserResDTO(updatedUser));
         return userMapper.toUserResDTO(updatedUser);
     }
 

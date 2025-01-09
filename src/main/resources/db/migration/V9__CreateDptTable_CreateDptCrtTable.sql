@@ -4,8 +4,15 @@ CREATE TABLE department
     name VARCHAR(255)          NULL,
     CONSTRAINT pk_department PRIMARY KEY (id)
 );
+INSERT INTO department (name)
+VALUES ('Product'),
+       ('Vận Hành'),
+       ('OutSource'),
+       ('QC'),
+       ('Bảo mật'),
+       ('DevOps'),
+       ('R&D');
 
-INSERT INTO department (name) VALUES ('Vận Hành');
 
 CREATE TABLE department_criterias
 (
@@ -41,3 +48,18 @@ ALTER TABLE projects
 
 ALTER TABLE assess_details
     MODIFY value INT NOT NULL;
+
+INSERT INTO department_criterias (id, department_id, criterias_id, question_id) VALUES
+              (1, 1, 9, 4),
+              (2, 1, 9, 5),
+              (3, 1, 10, 12),
+              (4, 1, 10, 13),
+              (5, 2, 12, 14),
+              (6, 2, 12, 15),
+              (7, 2, 13, 16),
+              (8, 2, 13, 17),
+              (9, 3, 14, 18),
+              (10, 3, 14, 19),
+              (11, 3, 15, 21),
+              (12, 3, 15, 20);
+

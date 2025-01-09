@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class Rank {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

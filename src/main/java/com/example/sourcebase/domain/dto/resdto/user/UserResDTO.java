@@ -26,7 +26,7 @@ public class UserResDTO {
     String username;
     String password;
     boolean isDeleted;
-    Rank rank;
+    RankResDto rank;
     Long departmentId;
     FileInfoResDTO fileInfo;
     List<UserRoleResDTO> userRoles;

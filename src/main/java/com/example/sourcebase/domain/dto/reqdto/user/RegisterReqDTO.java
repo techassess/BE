@@ -1,18 +1,18 @@
 package com.example.sourcebase.domain.dto.reqdto.user;
 
-import jakarta.servlet.annotation.WebInitParam;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.example.sourcebase.domain.dto.BaseEntityDto;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-public class RegisterReqDTO {
+@SuperBuilder
+@ToString
+public class RegisterReqDTO extends BaseEntityDto {
     String name;
     String email;
     String phoneNumber;

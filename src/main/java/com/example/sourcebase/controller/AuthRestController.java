@@ -8,7 +8,6 @@ import com.example.sourcebase.util.SuccessCode;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,8 +31,9 @@ public class AuthRestController {
                         .build()
         );
     }
+
     @PostMapping("/register")
-    public ResponseEntity<ResponseData<?>> register(RegisterReqDTO registerReqDTO, @RequestParam(value = "avatar", required = false) MultipartFile avatar) throws IOException {
+    public ResponseEntity<ResponseData<?>> register(@RequestBody RegisterReqDTO registerReqDTO, @RequestParam(value = "avatar", required = false) MultipartFile avatar) throws IOException {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.CREATED.getCode())

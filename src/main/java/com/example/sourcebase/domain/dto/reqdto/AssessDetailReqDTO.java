@@ -1,5 +1,6 @@
 package com.example.sourcebase.domain.dto.reqdto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

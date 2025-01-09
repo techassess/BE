@@ -16,7 +16,7 @@ public enum ErrorCode {
     USER_NOT_EXISTS(409, "User Not Exists", HttpStatus.CONFLICT),
     ID_NOT_EXISTS(409, "Id Not Exists", HttpStatus.CONFLICT),
     ILLEGAL_STATE(400, "Wrong password or username", HttpStatus.BAD_REQUEST),
-    ILLEGAL_ARGUMENT(409, "Email, Phone or Username Already Exists", HttpStatus.CONFLICT),
+    MAIL_PHONE_USERNAME_ALREADY_EXISTED(409, "Email, Phone or Username Already Exists", HttpStatus.CONFLICT),
     VALIDATION_ERROR(400, "", HttpStatus.BAD_REQUEST),
     USERNAME_EXISTS(409, "Username Exists", HttpStatus.CONFLICT),
 
