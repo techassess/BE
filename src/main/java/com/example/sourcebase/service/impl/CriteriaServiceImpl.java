@@ -110,7 +110,11 @@ public class CriteriaServiceImpl implements ICriteriaService {
         if (dcsByCId.isEmpty()) {
             throw new AppException(ErrorCode.CRITERIA_NOT_FOUND);
         }
-        int totalPoints = dcsByCId.stream().map(dc -> dc.getQuestion().getPoint()).reduce(0, Integer::sum);
+        List<DepartmentCriterias> fillDeletedDcs = dcsByCId.stream().filter(dc -> !dc.getCriteria().isDeleted()).toList();
+        List<DepartmentCriterias> fillDeletedQuestions = fillDeletedDcs.stream()
+                .filter(dc -> dc.getQuestion() != null && !dc.getQuestion().isDeleted())
+                .toList();
+        int totalPoints = fillDeletedQuestions.stream().map(dc -> dc.getQuestion().getPoint()).reduce(0, Integer::sum);
         Criteria currentCriteria = dcsByCId.getFirst().getCriteria();
         currentCriteria.setPoint(totalPoints);
         criteriaRepository.save(currentCriteria); // done update point of criteria
@@ -146,7 +150,6 @@ public class CriteriaServiceImpl implements ICriteriaService {
         } else {
             criteriaResDTO.setQuestions(null);
         }
-
 
 
         return criteriaResDTO;
