@@ -47,7 +47,7 @@ public class RatedRankServiceImpl implements IRatedRankService {
                             .collect(Collectors.toList()));
                     return assessResDTO;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         // 2. Tính giá trị trung bình của các tiêu chí (criteriaID giống nhau)
         Map<Long, Double> result = new HashMap<>();
@@ -156,6 +156,10 @@ public class RatedRankServiceImpl implements IRatedRankService {
         normalizeList(averageValueByManager, allCriteriaIds);
         normalizeList(averageValueBySelf, allCriteriaIds);
         normalizeList(averageValueByTeam, allCriteriaIds);
+        // Step 3: sort all lists by criteria id
+        averageValueByManager.sort(Comparator.comparing(AverageValueInCriteria::getCriteriaId));
+        averageValueBySelf.sort(Comparator.comparing(AverageValueInCriteria::getCriteriaId));
+        averageValueByTeam.sort(Comparator.comparing(AverageValueInCriteria::getCriteriaId));
 
         int selfWeight, teamWeight, managerWeight;
 
