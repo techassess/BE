@@ -175,6 +175,8 @@ public class RatedRankServiceImpl implements IRatedRankService {
             teamWeight = (self.getAverageValue() == 0) ? 0 : 1;
             managerWeight = (manager.getAverageValue() == 0) ? 0 : 1;
 
+            int totalWeight = selfWeight + teamWeight + managerWeight;
+
             // check if criteriaId of team, self, manager are the same
             if (!Objects.equals(team.getCriteriaId(), self.getCriteriaId())
                     || !Objects.equals(team.getCriteriaId(), manager.getCriteriaId())) {
@@ -187,7 +189,7 @@ public class RatedRankServiceImpl implements IRatedRankService {
 
             // calculate point of user of a criterion
             double userPointOfCriteria = (team.getAverageValue() * teamWeight + self.getAverageValue() * selfWeight + manager.getAverageValue() * managerWeight)
-                    / (teamWeight + selfWeight + managerWeight)
+                    / (totalWeight == 0 ? 1 : totalWeight)
                     / 5
                     * pointOfCriterion;
 

@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface IDepartmentCriteriasRepository extends JpaRepository<DepartmentCriterias, Long> {
+    List<DepartmentCriterias> findByQuestion_Id(Long questionId);
+
+    List<DepartmentCriterias> findByCriteria_Id(Long criteriaId);
 
     List<DepartmentCriterias> findByCriteria_IdAndDepartment_Id(Long criteriaId, Long departmentId);
 

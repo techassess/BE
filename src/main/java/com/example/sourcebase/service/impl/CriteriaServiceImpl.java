@@ -11,7 +11,6 @@ import com.example.sourcebase.mapper.QuestionMapper;
 import com.example.sourcebase.repository.*;
 import com.example.sourcebase.service.ICriteriaService;
 import com.example.sourcebase.util.ErrorCode;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
@@ -19,8 +18,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -100,7 +102,19 @@ public class CriteriaServiceImpl implements ICriteriaService {
     }
 
     @Override
+    @Transactional
     public CriteriaResDTO getCriteriaById(Long id, Long departmentId) {
+
+        // find dcs by criteria
+        List<DepartmentCriterias> dcsByCId = dcRepository.findByCriteria_Id(id);
+        if (dcsByCId.isEmpty()) {
+            throw new AppException(ErrorCode.CRITERIA_NOT_FOUND);
+        }
+        int totalPoints = dcsByCId.stream().map(dc -> dc.getQuestion().getPoint()).reduce(0, Integer::sum);
+        Criteria currentCriteria = dcsByCId.getFirst().getCriteria();
+        currentCriteria.setPoint(totalPoints);
+        criteriaRepository.save(currentCriteria); // done update point of criteria
+
         Criteria criteria = criteriaRepository.findById(id, departmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
 
@@ -132,6 +146,8 @@ public class CriteriaServiceImpl implements ICriteriaService {
         } else {
             criteriaResDTO.setQuestions(null);
         }
+
+
 
         return criteriaResDTO;
     }
