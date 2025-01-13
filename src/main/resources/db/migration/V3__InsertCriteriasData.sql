@@ -19,13 +19,13 @@ INSERT INTO criterias (id, title, point) VALUES
   (6, 'Đóng góp của bản thân và kết quả', 0),
   (7, 'Dự kiến mục tiêu của bản thân quý tiếp theo', 0),
   (8, 'Đánh giá của quản lý', 0),
-  (9, 'Kỹ năng chuyên môn (Technical Skills)', 30),
-  (10, 'Sự tuân thủ quy định (Compliance)', 0),
-  (11, 'Thái độ làm việc (Work Attitude)', 25),
-  (12, 'Kỹ năng mềm (Soft Skills)', 25),
-  (13, 'Khả năng thích nghi (Adaptability)', 25),
-  (14, 'Đóng góp cho tổ chức (Contribution to Organization)', 25),
-  (15, 'Kết quả phát triển cá nhân (Personal Development)', 0);
+  (9, 'Kỹ năng chuyên môn', 30),
+  (10, 'Sự tuân thủ quy định', 30),
+  (11, 'Thái độ làm việc', 25),
+  (12, 'Kỹ năng mềm', 25),
+  (13, 'Khả năng thích nghi', 25),
+  (14, 'Đóng góp cho tổ chức', 25),
+  (15, 'Kết quả phát triển cá nhân', 25);
 
 INSERT INTO questions (id, title, point, criteria_id) VALUES
         (1, 'Mức độ hoàn thành mục tiêu công việc được giao trong thời gian qua?', 15, 1),
