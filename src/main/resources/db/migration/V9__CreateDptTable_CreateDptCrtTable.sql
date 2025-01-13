@@ -60,6 +60,7 @@ INSERT INTO department_criterias (department_id, criterias_id, question_id) VALU
               (1, 3, 8),
               (1, 3, 9),
               (1, 4, 10),
+              (1, 5, 11),
               (1, 6, null),
               (1, 7, null),
               (1, 8, null),
@@ -72,8 +73,5 @@ INSERT INTO department_criterias (department_id, criterias_id, question_id) VALU
               (2, 14, 18),
               (2, 14, 19),
               (2, 15, 20),
-              (2, 15, 21),
-              (2, 6, null),
-              (2, 7, null),
-              (2, 8, null);
+              (2, 15, 21);
 
