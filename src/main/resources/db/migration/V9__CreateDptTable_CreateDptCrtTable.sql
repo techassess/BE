@@ -13,7 +13,6 @@ VALUES ('Product'),
        ('DevOps'),
        ('R&D');
 
-INSERT INTO department (name) VALUES ('Vận Hành');
 
 CREATE TABLE department_criterias
 (
@@ -75,7 +74,3 @@ INSERT INTO department_criterias (department_id, criterias_id, question_id) VALU
               (2, 14, 19),
               (2, 15, 20),
               (2, 15, 21);
-
-
-
-
