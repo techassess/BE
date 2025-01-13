@@ -3,6 +3,7 @@ package com.example.sourcebase.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.Set;
 
@@ -21,6 +22,7 @@ public class Department {
     String name;
 
     @Column(nullable = false)
+    @ColumnDefault("false")
     boolean deleted = false;
 
     @OneToMany(mappedBy = "department", fetch = FetchType.EAGER)

@@ -26,7 +26,6 @@ public class GlobalExceptionHandler {
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ResponseData<?>> handlerValidationException(Exception ex, WebRequest request) {
-        error.setCode(ErrorCode.USER_NOT_FOUND.getCode());
         error.setTimestamp(LocalDateTime.now());
         error.setError(ex.getMessage());
         error.setPath(request.getDescription(false).replace("uri=", ""));

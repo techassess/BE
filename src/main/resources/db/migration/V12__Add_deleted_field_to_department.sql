@@ -1,7 +1,5 @@
 ALTER TABLE department
-    ADD deleted BIT(1) NULL;
-UPDATE department
-SET deleted = 0;
+    ADD deleted BIT(1) DEFAULT 0 NULL;
 
 ALTER TABLE department
     MODIFY deleted BIT(1) NOT NULL;

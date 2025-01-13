@@ -3,6 +3,7 @@ package com.example.sourcebase.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "answers")
@@ -24,5 +25,6 @@ public class Answer {
     Question question;
 
     @Column(name = "is_deleted", nullable = false)
+    @ColumnDefault("false")
     private boolean isDeleted = false;
 }

@@ -74,3 +74,4 @@ INSERT INTO department_criterias (department_id, criterias_id, question_id) VALU
               (2, 14, 19),
               (2, 15, 20),
               (2, 15, 21);
+

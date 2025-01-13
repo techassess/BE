@@ -4,6 +4,7 @@ package com.example.sourcebase.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.List;
 import java.util.Set;
@@ -17,7 +18,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Question {
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     String title;
@@ -31,9 +32,9 @@ public class Question {
     List<Answer> answers;
 
     @Column(name = "is_deleted", nullable = false)
+    @ColumnDefault("false")
     private boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "question")
-
+    @OneToMany(mappedBy = "question" , fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     Set<DepartmentCriterias> departmentCriterias;
 }

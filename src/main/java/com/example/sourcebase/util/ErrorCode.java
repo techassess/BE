@@ -44,6 +44,10 @@ public enum ErrorCode {
     MANAGER_ASSESS_IS_NOT_EXIST(40404, "Không có đánh giá của quản lý", HttpStatus.NOT_FOUND),
 
     CRITERIA_ID_NOT_MATCH(40905, "Criteria id not match", HttpStatus.CONFLICT),
+
+    TO_USER_NOT_FOUND(40406, "Không tìm thấy người đánh giá", HttpStatus.NOT_FOUND),
+
+    ASSESS_DETAIL_NOT_FOUND(40407, "Không tìm thấy chi tiết đánh giá", HttpStatus.NOT_FOUND),
     ;
     int code;
     String message;

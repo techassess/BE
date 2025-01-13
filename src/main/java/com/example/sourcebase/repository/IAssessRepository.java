@@ -12,7 +12,7 @@ public interface IAssessRepository extends JpaRepository<Assess, Long> {
     @Query("SELECT a FROM Assess a WHERE a.toUser.id = :userId")
     List<Assess> getListAssessOfUserId(Long userId);
 
-    Assess findByToUserIdAndAssessmentType(Long userId, ETypeAssess type);
+    List<Assess> findByToUserIdAndAssessmentType(Long userId, ETypeAssess type);
 
     @Query("SELECT a FROM Assess a WHERE a.user.id = :userId")
     List<Assess> getListAssessByUserId(Long userId);
@@ -23,10 +23,14 @@ public interface IAssessRepository extends JpaRepository<Assess, Long> {
     @Query("SELECT a FROM Assess a WHERE a.toUser.id = :userId AND a.assessmentType = 'TEAM'")
     List<Assess> getListAssessTeamOfUserId(Long userId);
 
+    List<Assess> findByToUser_IdAndAssessmentTypeAndSubmitted(Long userId, ETypeAssess type, boolean submitted);
+
     /**
      * find all assess by toUser id
      * @param userId person being rated
      * @return list of assess
      */
     List<Assess> findByToUser_Id(Long userId);
+
+    List<Assess> findByUser_IdAndToUser_Id(Long userId, Long toUserId);
 }

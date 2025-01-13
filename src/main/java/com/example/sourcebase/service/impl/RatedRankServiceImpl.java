@@ -8,6 +8,7 @@ import com.example.sourcebase.domain.dto.resdto.AssessResDTO;
 import com.example.sourcebase.domain.dto.resdto.custom.OverallRatedResDto;
 import com.example.sourcebase.domain.enumeration.ERank;
 import com.example.sourcebase.domain.enumeration.ERole;
+import com.example.sourcebase.domain.enumeration.ETypeAssess;
 import com.example.sourcebase.domain.model.AverageValueInCriteria;
 import com.example.sourcebase.domain.model.OverallOfACriterion;
 import com.example.sourcebase.exception.AppException;
@@ -43,7 +44,7 @@ public class RatedRankServiceImpl implements IRatedRankService {
                 .map(assess -> {
                     AssessResDTO assessResDTO = assessMapper.toAssessResDto(assess);
                     assessResDTO.setAssessDetails(assessResDTO.getAssessDetails().stream()
-                            .peek(assessDetail -> assessDetail.setAssessId(assessResDTO.getId()))
+                            .peek(assessDetail -> assessDetail.setAssess(assessResDTO))
                             .collect(Collectors.toList()));
                     return assessResDTO;
                 })
@@ -76,7 +77,7 @@ public class RatedRankServiceImpl implements IRatedRankService {
         Assess assess = assessRepository.getAssessBySelf(userId);
         AssessResDTO assessResDTO = assessMapper.toAssessResDto(assess);
         assessResDTO.setAssessDetails(assessResDTO.getAssessDetails().stream()
-                .peek(assessDetail -> assessDetail.setAssessId(assessResDTO.getId()))
+                .peek(assessDetail -> assessDetail.setAssess(assessResDTO))
                 .collect(Collectors.toList()));
         // 2. Tính giá trị trung bình của các tiêu chí (criteriaID giống nhau)
         Map<Long, Double> result = new HashMap<>();
@@ -136,15 +137,40 @@ public class RatedRankServiceImpl implements IRatedRankService {
         return convertMapAvgToList(averagePointPerCriteria);
     }
 
+    private List<AverageValueInCriteria> getAverageValueOfCriteria(Long userId, ETypeAssess type) {
+        List<Assess> assesses = assessRepository.findByToUser_IdAndAssessmentTypeAndSubmitted(userId, type, true);
+        if (assesses.isEmpty()) {
+            throw new AppException(ErrorCode.ASSESS_IS_NOT_EXIST);
+        }
+
+        // get the newest assess
+        Assess newestAssess = assesses.getLast();
+        // find all the assess detail of the newest assess. now the adList have the same assessId and assessment
+        List<AssessDetail> adList = assessDetailRepository
+                .findByAssess_IdAndAssess_AssessmentDate(
+                        newestAssess.getId(),
+                        newestAssess.getAssessmentDate()
+                );
+
+        // group by assessId and criteriaId and get average point on scale 5
+        Map<Long, Double> averagePointPerCriteria = adList.stream()
+                .collect(Collectors.groupingBy(
+                        ad -> ad.getCriteria().getId(),
+                        Collectors.averagingDouble(AssessDetail::getValue)
+                ));
+
+        return convertMapAvgToList(averagePointPerCriteria);
+    }
+
     @Override
     public OverallRatedResDto getOverallRatedOfAUser(Long userId) {
         OverallRatedResDto result = new OverallRatedResDto();
         // get average value of criteria by team
-        List<AverageValueInCriteria> averageValueByTeam = getAverageValueOfCriteriaByTeam(userId);
+        List<AverageValueInCriteria> averageValueByTeam = getAverageValueOfCriteria(userId, ETypeAssess.TEAM);
         // get average value of criteria by self
-        List<AverageValueInCriteria> averageValueBySelf = getAverageValueOfCriteriaBySelf(userId);
+        List<AverageValueInCriteria> averageValueBySelf = getAverageValueOfCriteria(userId, ETypeAssess.SELF);
         // get average value of criteria by manager
-        List<AverageValueInCriteria> averageValueByManager = getAverageValueOfCriteriaByManager(userId);
+        List<AverageValueInCriteria> averageValueByManager = getAverageValueOfCriteria(userId, ETypeAssess.MANAGER);
 
         // Step 1: Collect all unique criteriaIds
         Set<Long> allCriteriaIds = new HashSet<>();

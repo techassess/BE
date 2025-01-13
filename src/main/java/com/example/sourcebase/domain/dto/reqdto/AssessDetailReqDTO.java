@@ -1,10 +1,6 @@
 package com.example.sourcebase.domain.dto.reqdto;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.validation.annotation.Validated;
 
@@ -14,11 +10,12 @@ import org.springframework.validation.annotation.Validated;
 @NoArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @Validated
+@ToString
 public class AssessDetailReqDTO {
-    String assessId;
-    String criteriaId;
-    String questionId;
-    String value;
+    Long assessId;
+    Long criteriaId;
+    Long questionId;
+    Integer value;
     String description;
-    String isComment;
+    boolean isComment;
 }

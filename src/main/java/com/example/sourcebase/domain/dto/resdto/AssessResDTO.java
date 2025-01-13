@@ -1,9 +1,6 @@
 package com.example.sourcebase.domain.dto.resdto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
@@ -12,6 +9,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class AssessResDTO {
     Long id;
@@ -20,6 +18,6 @@ public class AssessResDTO {
     String assessmentDate;
     String assessmentType;
     String totalPoint;
+    boolean submitted;
     List<AssessDetailResDto> assessDetails;
-
 }

@@ -1,21 +1,17 @@
 package com.example.sourcebase.domain.dto.resdto;
 
-import com.example.sourcebase.domain.Criteria;
-import com.example.sourcebase.domain.Question;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class AssessDetailResDto {
     Long id;
-    Long assessId;
+    AssessResDTO assess;
     CriteriaResDTO criteria;
     QuestionResDTO question;
     int value;

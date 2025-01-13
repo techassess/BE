@@ -1,23 +1,23 @@
 package com.example.sourcebase.service.impl;
 
-import com.example.sourcebase.domain.Assess;
-import com.example.sourcebase.domain.AssessDetail;
-import com.example.sourcebase.domain.User;
-import com.example.sourcebase.domain.UserRole;
-import com.example.sourcebase.mapper.AssessDetailMapper;
-import com.example.sourcebase.mapper.CriteriaMapper;
-import com.example.sourcebase.mapper.QuestionMapper;
-import com.example.sourcebase.repository.*;
-import com.example.sourcebase.mapper.AssessMapper;
+import com.example.sourcebase.domain.*;
 import com.example.sourcebase.domain.dto.reqdto.AssessReqDTO;
 import com.example.sourcebase.domain.dto.resdto.AssessResDTO;
 import com.example.sourcebase.domain.enumeration.ETypeAssess;
+import com.example.sourcebase.exception.AppException;
+import com.example.sourcebase.mapper.AnswerMapper;
+import com.example.sourcebase.mapper.AssessDetailMapper;
+import com.example.sourcebase.mapper.AssessMapper;
+import com.example.sourcebase.mapper.CriteriaMapper;
+import com.example.sourcebase.repository.*;
 import com.example.sourcebase.service.IAssessService;
+import com.example.sourcebase.util.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,72 +29,106 @@ import java.util.stream.Collectors;
 @Setter
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class AssessService implements IAssessService {
-    AssessMapper assessMapper = AssessMapper.INSTANCE;
-    AssessDetailMapper assessDetailMapper = AssessDetailMapper.INSTANCE;
-    CriteriaMapper criteriaResMapper = CriteriaMapper.INSTANCE;
+    AssessMapper assessMapper;
+    AssessDetailMapper assessDetailMapper;
+    CriteriaMapper criteriaResMapper;
+    AnswerMapper answerMapper;
     IAssessRepository assessRepository;
     IUserRepository userRepository;
     IAssessDetailRepository assessDetailRepository;
     ICriteriaRepository criteriaRepository;
     IQuestionRepository questionRepository;
+    IAnswerRepository answerRepository;
 
     @Override
+    @Transactional
     public AssessResDTO updateAssess(AssessReqDTO assessReqDto) {
-        ETypeAssess type = null;
-        User user = userRepository.findById(Long.valueOf(assessReqDto.getUserId())).get();
+        ETypeAssess type;
+        User user = userRepository.findById(assessReqDto.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<UserRole> userRoles = user.getUserRoles();
+
         if (assessReqDto.getToUserId().equals(assessReqDto.getUserId())) {
             type = ETypeAssess.SELF;
         } else {
             boolean isManager = userRoles.stream().anyMatch(item -> item.getRole().getName().equalsIgnoreCase("Manager"));
             if (isManager) {
                 type = ETypeAssess.MANAGER;
-            }else {
+            } else {
                 type = ETypeAssess.TEAM;
             }
         }
-        User userReview = userRepository.findById(Long.valueOf(assessReqDto.getUserId())).get();
-        User toUser = userRepository.findById(Long.valueOf(assessReqDto.getToUserId())).get();
-        Assess assess = assessMapper.toAssess(assessReqDto);
-        assess.setUser(userReview);
-        assess.setToUser(toUser);
-        assess.setAssessmentType(type);
-        assess.setTotalPoint(Integer.parseInt(assessReqDto.getTotalPoint()));
-        assess.setAssessmentDate(LocalDate.now());
+        User userReview = userRepository.findById(assessReqDto.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User toUser = userRepository.findById(assessReqDto.getToUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.TO_USER_NOT_FOUND));
 
-        assessReqDto.getAssessDetails().forEach(item -> {
-            AssessDetail assessDetail = assessDetailMapper.toAssessDetail(item);
-            assessDetail.setAssess(assess);
-            if (item.getCriteriaId().equals("6") || item.getCriteriaId().equals("7") || item.getCriteriaId().equals("8")) {
-                assessDetail.setComment(true);
-            }
-            if (item.getQuestionId() != null) {
-                assessDetail.setQuestion(questionRepository.findById(Long.valueOf(item.getQuestionId())).get());
-            } else {
-                assessDetail.setQuestion(null);
-            }
-            assessDetail.setCriteria(criteriaRepository.findById(Long.valueOf(item.getCriteriaId())).get());
-        });
-        assess.setAssessDetails(assessReqDto.getAssessDetails().stream()
-                .map(item -> {
-                    AssessDetail assessDetail = assessDetailMapper.toAssessDetail(item);
-                    assessDetail.setAssess(assess);
-                    if (item.getCriteriaId().equals("6") || item.getCriteriaId().equals("7") || item.getCriteriaId().equals("8")) {
-                        assessDetail.setComment(true);
+        List<Assess> aList = assessRepository.findByUser_IdAndToUser_Id(assessReqDto.getUserId(), assessReqDto.getToUserId());
+
+        Assess toBeSavedAssess;
+        Assess savedAssess;
+        if (!aList.isEmpty()) { // update
+            Assess newestAssess = aList.getLast(); // now have assessId
+            toBeSavedAssess = newestAssess; //persisted, but not list assessDetails
+
+            toBeSavedAssess.setUser(userReview);
+            toBeSavedAssess.setToUser(toUser);
+            toBeSavedAssess.setAssessmentType(type);
+            toBeSavedAssess.setAssessmentDate(LocalDate.now());
+            toBeSavedAssess.setSubmitted(assessReqDto.isSubmitted());
+
+            // merge assess detail
+            List<AssessDetail> assessDetailsToUpdate = assessDetailMapper.toEntityList(assessReqDto.getAssessDetails());
+            List<AssessDetail> assessDetails = newestAssess.getAssessDetails(); // not being persisted, now have to merge
+            assessDetailsToUpdate.forEach(assessDetail -> {
+                        AssessDetail ad = assessDetails.stream()
+                                .filter(item -> {
+                                    if (item.getQuestion() == null) {
+                                        return item.getAssess().getId().equals(newestAssess.getId()) &&
+                                                item.getCriteria().getId().equals(assessDetail.getCriteria().getId());
+                                    }
+                                    return item.getAssess().getId().equals(newestAssess.getId()) &&
+                                            item.getCriteria().getId().equals(assessDetail.getCriteria().getId()) &&
+                                            item.getQuestion().getId().equals(assessDetail.getQuestion().getId());
+                                })
+                                .findFirst()
+                                .orElseThrow(() -> new AppException(ErrorCode.ASSESS_DETAIL_NOT_FOUND));
+                        ad.setValue(assessDetail.getValue());
+                        ad.setDescription(assessDetail.getDescription());
+                        ad.setAssess(newestAssess);
                     }
-                    if (item.getQuestionId() != null) {
-                        assessDetail.setQuestion(questionRepository.findById(Long.valueOf(item.getQuestionId())).get());
-                    } else {
-                        assessDetail.setQuestion(null);
-                    }
-                    assessDetail.setCriteria(criteriaRepository.findById(Long.valueOf(item.getCriteriaId())).get());
-                    return assessDetail;
-                })
-                .collect(Collectors.toList()));
+            );
 
-        assessRepository.save(assess);
+            toBeSavedAssess.setAssessDetails(assessDetails);
+            return assessMapper.toAssessResDto(toBeSavedAssess);
+        } else { // create
+            toBeSavedAssess = assessMapper.toAssess(assessReqDto);
 
-        return assessMapper.toAssessResDto(assess);
+            toBeSavedAssess.setUser(userReview);
+            toBeSavedAssess.setToUser(toUser);
+            toBeSavedAssess.setAssessmentType(type);
+            toBeSavedAssess.setAssessmentDate(LocalDate.now());
+            toBeSavedAssess.setSubmitted(assessReqDto.isSubmitted());
+
+            List<AssessDetail> assessDetails = assessDetailMapper.toEntityList(assessReqDto.getAssessDetails());
+            assessDetails.forEach(assessDetail -> {
+                // merge Criteria
+                Criteria criteria = criteriaRepository.findById(assessDetail.getCriteria().getId())
+                        .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
+                assessDetail.setCriteria(criteria);
+
+                // merge Question
+                Question toBeSavedQuestion = questionRepository.findById(assessDetail.getQuestion().getId())
+                        .orElse(null);
+                assessDetail.setQuestion(toBeSavedQuestion);
+
+                assessDetail.setAssess(toBeSavedAssess);
+            });
+
+            toBeSavedAssess.setAssessDetails(assessDetails);
+            savedAssess = assessRepository.saveAndFlush(toBeSavedAssess);
+        }
+        return assessMapper.toAssessResDto(savedAssess);
     }
 
     @Override
@@ -103,7 +137,7 @@ public class AssessService implements IAssessService {
                 .map(assess -> {
                     AssessResDTO assessResDTO = assessMapper.toAssessResDto(assess);
                     assessResDTO.setAssessDetails(assessResDTO.getAssessDetails().stream()
-                            .peek(assessDetail -> assessDetail.setAssessId(assessResDTO.getId()))
+                            .peek(assessDetail -> assessDetail.setAssess(assessResDTO))
                             .collect(Collectors.toList()));
                     return assessResDTO;
                 })
@@ -118,9 +152,12 @@ public class AssessService implements IAssessService {
 
     @Override
     public AssessResDTO getAssess(Long userId) {
-        AssessResDTO myAssess = assessMapper.toAssessResDto(assessRepository.findByToUserIdAndAssessmentType(userId, ETypeAssess.SELF));
-        myAssess.getAssessDetails().forEach(item -> item.setAssessId(myAssess.getId()));
-        return myAssess;
+        List<Assess> assessList = assessRepository.findByToUserIdAndAssessmentType(userId, ETypeAssess.SELF);
+        if (assessList.isEmpty()) {
+            throw new AppException(ErrorCode.ASSESS_IS_NOT_EXIST);
+        }
+        //        System.out.println(myAssess);
+        return assessMapper.toAssessResDto(assessList.getLast());
     }
 
     @Override
@@ -129,7 +166,7 @@ public class AssessService implements IAssessService {
                 .map(assess -> {
                     AssessResDTO assessResDTO = assessMapper.toAssessResDto(assess);
                     assessResDTO.setAssessDetails(assessResDTO.getAssessDetails().stream()
-                            .peek(assessDetail -> assessDetail.setAssessId(assessResDTO.getId()))
+                            .peek(assessDetail -> assessDetail.setAssess(assessResDTO))
                             .collect(Collectors.toList()));
                     return assessResDTO;
                 })

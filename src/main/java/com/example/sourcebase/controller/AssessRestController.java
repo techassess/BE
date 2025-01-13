@@ -3,10 +3,8 @@ package com.example.sourcebase.controller;
 import com.example.sourcebase.domain.dto.reqdto.AssessReqDTO;
 import com.example.sourcebase.service.IAssessService;
 import com.example.sourcebase.service.IRatedRankService;
-import com.example.sourcebase.util.ErrorCode;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,7 +21,7 @@ public class AssessRestController {
     IRatedRankService ratedRankService;
 
     @PostMapping("/save-assess")
-    @CrossOrigin
+//    @CrossOrigin
     public ResponseEntity<ResponseData<?>> saveAssess(@Valid @RequestBody AssessReqDTO assessReqDto) {
         return ResponseEntity.ok(
                 ResponseData.builder()
@@ -58,14 +56,6 @@ public class AssessRestController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<ResponseData<?>> getAllUserHadSameProject(@PathVariable Long userId) {
-        if (assessService.getAssess(userId) == null) {
-            return ResponseEntity.status(ErrorCode.ASSESS_IS_NOT_EXIST.getHttpStatus()).body(
-                    ResponseData.builder()
-                            .code(ErrorCode.ASSESS_IS_NOT_EXIST.getCode())
-                            .message(ErrorCode.ASSESS_IS_NOT_EXIST.getMessage())
-                            .build()
-            );
-        }
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.GET_SUCCESSFUL.getCode())

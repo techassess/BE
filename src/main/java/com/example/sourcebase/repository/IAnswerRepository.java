@@ -25,4 +25,7 @@ public interface IAnswerRepository extends JpaRepository<Answer, Long> {
     @Override
     @Query("SELECT a FROM Answer a WHERE a.id = :id AND a.isDeleted = false")
     Optional<Answer> findById(@Param("id") Long id);
+
+    @Query("SELECT a FROM Answer a WHERE a.question.id = :questionId AND a.isDeleted = false")
+    List<Answer> findAllByQuestion_Id(Long questionId);
 }
