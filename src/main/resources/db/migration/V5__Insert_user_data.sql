@@ -1,6 +1,16 @@
 INSERT INTO users (create_at, name, file_info_id, email, phone_number, dob, gender, username, password, is_active, is_deleted, rank_id) VALUES
     (NOW(), 'Nguyễn Ngọc Quang', null, 'nguyenvana@example.com', '0987654321', '1990-01-01', 'MALE', 'quangnn', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 25),
-    (NOW(), 'Hồ Xuân Đại', null, 'tranthib@example.com', '0976543210', '1992-05-15', 'FEMALE', 'daihx', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 2),
-    (NOW(), 'Trịnh Thái Quân', null, 'levanc@example.com', '0965432109', '1988-09-30', 'MALE', 'quantt', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 3),
-    (NOW(), 'Nguyễn Văn Linh', null, 'dinhthie@example.com', '0976543210', '1992-05-15', 'FEMALE', 'linhnv', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 4),
-    (NOW(), 'Võ Văn Kiệt', null, 'lyvanf@example.com', '0965432109', '1988-09-30', 'MALE', 'kietvv', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 5);
+    (NOW(), 'Trần Đức Hùng', null, 'tranthib@example.com', '0976543210', '1992-05-15', 'FEMALE', 'hungtd', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 2),
+    (NOW(), 'Y Âm', null, 'levanc@example.com', '0965432109', '1988-09-30', 'MALE', 'amy', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 3),
+    (NOW(), 'Hồ Thị Huyền', null, 'dinhthie@example.com', '0976543210', '1992-05-15', 'FEMALE', 'huyenht', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 4),
+    (NOW(), 'Hoàng Hữu Hùng', null, 'lyvanf@example.com', '0965432109', '1988-09-30', 'MALE', 'hunghh', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 5),
+    (NOW(), 'Lê Ngọc Anh', null, 'ngocanh@example.com', '0965432108', '1988-09-30', 'MALE', 'anhln', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 5),
+    (NOW(), 'Đặng Văn Sinh', null, 'sinhdv@example.com', '0965432107', '1988-09-30', 'MALE', 'sinhdv', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 5),
+    (NOW(), 'Huỳnh Thị Tố Loan', null, 'loanhtt@example.com', '0965432106', '1988-09-30', 'MALE', 'loanhtt', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 5),
+    (NOW(), 'Mai Xuân Nghĩa', null, 'nghiaxm@example.com', '0965432105', '1988-09-30', 'MALE', 'nghiaxm', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 5),
+    (NOW(), 'Hồ Thị Ngân', null, 'nganht@example.com', '0965432104', '1988-09-30', 'MALE', 'nganht', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 5),
+    (NOW(), 'Trần Đức Phát', null, 'phattd@example.com', '0965432103', '1988-09-30', 'MALE', 'phattd', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 5),
+    (NOW(), 'A Tân', null, 'tana@example.com', '0965432102', '1988-09-30', 'MALE', 'tana', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 5),
+    (NOW(), 'Huỳnh Đức', null, 'duch@example.com', '0965432101', '1988-09-30', 'MALE', 'duch', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 5),
+    (NOW(), 'Phạm Gia Bảo', null, 'baopham@example.com', '0965432101', '1988-09-30', 'MALE', 'baop', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 5),
+    (NOW(), 'Hồ Thị Mái', null, 'maiht@example.com', '0965432101', '1988-09-30', 'MALE', 'maiht', '$2a$12$8K1IE6zdsyvKNJFRgq.2iefUlmLJCGErtzuR33c5h/xmWaiCMk7u.', 1, 0, 5);
