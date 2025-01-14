@@ -26,5 +26,7 @@ public interface IUserService {
 
     UserResDTO updateUser(Long id, RegisterReqDTO request, MultipartFile avatar) throws IOException;
 
+    UserResDTO updateUser2(Long id, RegisterReqDTO request, MultipartFile avatar) throws IOException;
+
     List<UserResDTO> getAllUserHadSameProject(Long userId);
 }

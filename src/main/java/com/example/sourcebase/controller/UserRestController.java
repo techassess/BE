@@ -2,10 +2,12 @@ package com.example.sourcebase.controller;
 
 import com.example.sourcebase.domain.dto.reqdto.user.RegisterReqDTO;
 import com.example.sourcebase.domain.dto.resdto.user.UserResDTO;
+import com.example.sourcebase.mapper.RegisterMapper;
 import com.example.sourcebase.service.IUserService;
 import com.example.sourcebase.util.ErrorCode;
 import com.example.sourcebase.util.ResponseData;
 import com.example.sourcebase.util.SuccessCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +24,7 @@ import java.util.List;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class UserRestController {
     IUserService userService;
-
+    RegisterMapper registerMapper;
     @GetMapping()
     public ResponseEntity<ResponseData<?>> getAllUser() {
         return ResponseEntity.ok(
@@ -73,6 +75,17 @@ public class UserRestController {
                         .data(userService.updateUser(id, request, avatar))
                         .build());
     }
+    @PutMapping("/updateUserWithAvatar/{id}")
+    public ResponseEntity<ResponseData<?>> updateUser2(@PathVariable Long id, @RequestParam(value = "user", required = false) RegisterReqDTO request, @RequestParam(value = "avatar", required = false) MultipartFile avatar) throws IOException {
+        RegisterReqDTO registerReqDTO = registerMapper.readValue(String.valueOf(request), RegisterReqDTO.class);
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.UPDATE_SUCCESSFUL.getCode())
+                        .message(SuccessCode.UPDATE_SUCCESSFUL.getMessage())
+                        .data(userService.updateUser2(id, registerReqDTO, avatar))
+                        .build());
+    }
+
 
     @GetMapping("/{userId}/same-project")
     public ResponseEntity<ResponseData<?>> getAllUserHadSameProject(@PathVariable Long userId) {

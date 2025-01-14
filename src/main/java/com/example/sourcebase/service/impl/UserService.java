@@ -286,6 +286,40 @@ public class UserService implements IUserService, UserDetailsService {
         return userMapper.toUserResDTO(updatedUser);
     }
 
+    @Override
+    @Transactional
+    public UserResDTO updateUser2(Long id, RegisterReqDTO request, MultipartFile avatar) throws IOException {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        FileInfo fileInfo = uploadService.saveAvatar(avatar);
+        if (request.getEmail() != null && !request.getEmail().equals(existingUser.getEmail())) {
+            if (userRepository.existsUserByEmailIgnoreCaseOrUsernameIgnoreCaseOrPhoneNumber(request.getEmail(), null, null)) {
+                throw new IllegalArgumentException("Email already exists");
+            }
+        }
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().equals(existingUser.getPhoneNumber())) {
+            if (userRepository.existsUserByEmailIgnoreCaseOrUsernameIgnoreCaseOrPhoneNumber(null, request.getPhoneNumber(), null)) {
+                throw new IllegalArgumentException("Phone already exists");
+            }
+        }
+
+        User userToUpdate = userMapper.toUser(request);
+        existingUser.setFileInfo(fileInfo);
+//        existingUser.setName(userToUpdate.getName());
+//        existingUser.setPhoneNumber(userToUpdate.getPhoneNumber());
+//        existingUser.setEmail(userToUpdate.getEmail());
+//        existingUser.setUsername(userToUpdate.getUsername());
+//        existingUser.setPassword(userToUpdate.getPassword());
+//        existingUser.setGender(userToUpdate.getGender());
+//        saveRank(existingUser, request.getPosition(), request.getLevel());
+//        existingUser.setDob(userToUpdate.getDob());
+//        existingUser.setUserRoles(userToUpdate.getUserRoles());
+//        existingUser.setUserProjects(userToUpdate.getUserProjects());
+
+        User updatedUser = userRepository.save(existingUser);
+        return userMapper.toUserResDTO(updatedUser);
+    }
+
     @Transactional
     public void saveUserRole(User user, Role role) {
         UserRole userRole = new UserRole(user, role);
