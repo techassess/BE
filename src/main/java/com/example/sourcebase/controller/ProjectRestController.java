@@ -15,7 +15,7 @@ import org.springframework.validation.BindingResult;
 @RestController
 @AllArgsConstructor
 @RequestMapping("api/projects")
-@CrossOrigin(origins = {"http://192.168.0.152:5000", "http://192.168.0.152:6123"})
+@CrossOrigin(origins = {"http://192.168.0.152:5000", "http://192.168.0.152:6123", "http://localhost:5000", "http://localhost:6123"})
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class ProjectRestController {
     IProjectService projectService;

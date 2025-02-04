@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/departments")
-@CrossOrigin(origins = {"http://192.168.0.152:5000", "http://192.168.0.152:6123"})
+@CrossOrigin(origins = {"http://192.168.0.152:5000", "http://192.168.0.152:6123", "http://localhost:5000", "http://localhost:6123"})
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Validated
@@ -30,25 +30,14 @@ public class DepartmentRestController {
 
     @GetMapping
     public ResponseEntity<ResponseData<?>> getListDepartment() {
-        return ResponseEntity.ok(
-                ResponseData.builder()
-                        .code(SuccessCode.GET_SUCCESSFUL.getCode())
-                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
-                        .data(departmentService.getAllDepartments())
-                        .build()
-        );
+        return ResponseEntity.ok(ResponseData.builder().code(SuccessCode.GET_SUCCESSFUL.getCode()).message(SuccessCode.GET_SUCCESSFUL.getMessage()).data(departmentService.getAllDepartments()).build());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseData<?>> getDepartmentById(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                ResponseData.builder()
-                        .code(SuccessCode.GET_SUCCESS.getCode())
-                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
-                        .data(departmentService.getDetailDepartment(id))
-                        .build()
-        );
+        return ResponseEntity.ok(ResponseData.builder().code(SuccessCode.GET_SUCCESS.getCode()).message(SuccessCode.GET_SUCCESSFUL.getMessage()).data(departmentService.getDetailDepartment(id)).build());
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
         try {
@@ -63,23 +52,11 @@ public class DepartmentRestController {
     public ResponseEntity<ResponseData<?>> createDepartment(@Valid @RequestBody DepartmentReqDTO departmentReqDTO) {
         DepartmentResDTO d = departmentService.addDepartment(departmentReqDTO);
 
-        return ResponseEntity.ok(
-                ResponseData.builder()
-                        .code(SuccessCode.CREATED.getCode())
-                        .message(SuccessCode.CREATED.getMessage())
-                        .data(d)
-                        .build()
-        );
+        return ResponseEntity.ok(ResponseData.builder().code(SuccessCode.CREATED.getCode()).message(SuccessCode.CREATED.getMessage()).data(d).build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseData<?>> updatedDepartment(@PathVariable Long id,
-                                                             @Valid @RequestBody DepartmentReqDTO departmentReqDTO) {
-        return ResponseEntity.ok(
-                ResponseData.builder()
-                        .code(SuccessCode.UPDATED.getCode())
-                        .message(SuccessCode.UPDATED.getMessage())
-                        .data(departmentService.updateDepartment(id, departmentReqDTO))
-                        .build());
+    public ResponseEntity<ResponseData<?>> updatedDepartment(@PathVariable Long id, @Valid @RequestBody DepartmentReqDTO departmentReqDTO) {
+        return ResponseEntity.ok(ResponseData.builder().code(SuccessCode.UPDATED.getCode()).message(SuccessCode.UPDATED.getMessage()).data(departmentService.updateDepartment(id, departmentReqDTO)).build());
     }
 }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/answers")
-@CrossOrigin(origins = {"http://192.168.0.152:5000", "http://192.168.0.152:6123"})
+@CrossOrigin(origins = {"http://192.168.0.152:5000", "http://192.168.0.152:6123", "http://localhost:5000", "http://localhost:6123"})
 @RequiredArgsConstructor
 public class AnswerRestController {
     private final IAnswerService answerService;
