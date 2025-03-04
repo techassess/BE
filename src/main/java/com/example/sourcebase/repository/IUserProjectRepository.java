@@ -16,4 +16,9 @@ public interface IUserProjectRepository extends JpaRepository<UserProject, Long>
     List<UserProject> findAllByUserId(Long id);
 
     UserProject findByProject_IdAndUser_Id(Long projectId, Long userId);
+
+    /**
+     * Đếm số lượng thành viên trong project
+     */
+    int countByProject_Id(Long projectId);
 }
