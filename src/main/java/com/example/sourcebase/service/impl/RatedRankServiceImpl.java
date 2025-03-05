@@ -52,17 +52,26 @@ public class RatedRankServiceImpl implements IRatedRankService {
         // 1. Lấy danh sách đánh giá dựa trên toUserId, projectId và assessmentType
         // lúc này bản ghi đánh giá sẽ có cùng projectId, toUserId và assessmentType
         List<Assess> assesses = assessRepository.findAllByToUser_IdAndProject_IdAndAssessmentType(toUserId, projectId, assessmentType);
+        int countEmpInProject = userProjectRepository.countByProject_Id(projectId);
+        //  trường hợp team chỉ có 1 người: sẽ không có đánh giá của Manager và team -> không trả về lỗi
+        //  trường hợp team chỉ có 2 người: sẽ không có đánh giá của team -> không trả về lỗi
         if (assesses.isEmpty()) {
             switch (assessmentType) {
-                case SELF -> throw new AppException(ErrorCode.SELF_ASSESS_IS_NOT_EXIST);
+                case SELF -> {
+                    throw new AppException(ErrorCode.SELF_ASSESS_IS_NOT_EXIST);
+                }
                 case TEAM -> {
-                    // todo: trường hợp team chỉ có 2 người sẽ không có đánh giá của team -> không trả về lỗi
-                    if (userService.getAllUserHadSameProject(toUserId, projectId).size() == 1) {
+                    if (countEmpInProject == 2 || countEmpInProject == 1) {
                         return new ArrayList<>();
                     }
                     throw new AppException(ErrorCode.TEAM_ASSESS_IS_NOT_EXIST);
                 }
-                case MANAGER -> throw new AppException(ErrorCode.MANAGER_ASSESS_IS_NOT_EXIST);
+                case MANAGER -> {
+                    if (countEmpInProject == 1) {
+                        return new ArrayList<>();
+                    }
+                    throw new AppException(ErrorCode.MANAGER_ASSESS_IS_NOT_EXIST);
+                }
             }
         }
 
@@ -178,11 +187,9 @@ public class RatedRankServiceImpl implements IRatedRankService {
 
     @Override
     public OverallRatedResDto getOverallRatedOfAUserByProject(Long toUserId, Long projectId) {
-        // get average value of criteria by self
+        // get average value of criteria by self, team & manager
         List<AverageValueInCriteria> averageValueBySelf = getAvgValueOfCriteriaByToUserIdAndProjectIdAndAssessmentType(toUserId, projectId, ETypeAssess.SELF);
-        // get average value of criteria by team
         List<AverageValueInCriteria> averageValueByTeam = getAvgValueOfCriteriaByToUserIdAndProjectIdAndAssessmentType(toUserId, projectId, ETypeAssess.TEAM);
-        // get average value of criteria by manager
         List<AverageValueInCriteria> averageValueByManager = getAvgValueOfCriteriaByToUserIdAndProjectIdAndAssessmentType(toUserId, projectId, ETypeAssess.MANAGER);
 
         // Step 1: Collect all unique criteriaIds
@@ -215,15 +222,17 @@ public class RatedRankServiceImpl implements IRatedRankService {
             AverageValueInCriteria self = averageValueBySelf.get(i);
             AverageValueInCriteria manager = averageValueByManager.get(i);
 
-            selfWeight = (team.getAverageValue() == 0) ? 0 : 1;
-            teamWeight = (self.getAverageValue() == 0) ? 0 : 1;
-            managerWeight = (manager.getAverageValue() == 0) ? 0 : 1;
+            selfWeight = (self.getAverageValue() == 0) ? 0 : 1;
+            teamWeight = (team.getAverageValue() == 0) ? 0 : 1;
+            managerWeight = (manager.getAverageValue() == 0) ? 0 : 2;
 
             int totalWeight = selfWeight + teamWeight + managerWeight;
 
             // check if criteriaId of team, self, manager are the same
             if (!Objects.equals(team.getCriteriaId(), self.getCriteriaId())
-                    || !Objects.equals(team.getCriteriaId(), manager.getCriteriaId())) {
+                    || !Objects.equals(team.getCriteriaId(), manager.getCriteriaId())
+                    || !Objects.equals(self.getCriteriaId(), manager.getCriteriaId())
+            ) {
                 throw new AppException(ErrorCode.CRITERIA_ID_NOT_MATCH);
             }
 
@@ -242,15 +251,15 @@ public class RatedRankServiceImpl implements IRatedRankService {
             totalUserPoint += userPointOfCriteria;
 
             // map to OverallOfACriterion
-            overallOfACriterion = new OverallOfACriterion(
-                    team.getCriteriaId(),
-                    pointOfCriterion,
-                    c.getTitle(),
-                    round(self.getAverageValue(), 1),
-                    round(team.getAverageValue(), 1),
-                    round(manager.getAverageValue(), 1),
-                    round(userPointOfCriteria, 2)
-            );
+            overallOfACriterion = OverallOfACriterion.builder()
+                    .criteriaId(team.getCriteriaId())
+                    .criteriaPoint(pointOfCriterion)
+                    .criteriaTitle(c.getTitle())
+                    .selfPoint(round(self.getAverageValue(), 1))
+                    .teamPoint(round(team.getAverageValue(), 1))
+                    .managerPoint(round(manager.getAverageValue(), 1))
+                    .overallPoint(round(userPointOfCriteria, 2))
+                    .build();
             overallOfCriteria.add(overallOfACriterion);
         }
 
