@@ -43,6 +43,18 @@ public class AssessService implements IAssessService {
     IUserProjectRepository userProjectRepository;
 
     @Override
+    public List<AssessResDTO> getAssess(Long userId, Long toUserId,  Long projectId, String assessmentType) {
+        return assessRepository.getAssess(userId,toUserId, projectId,assessmentType).stream()
+                .map(assess -> {
+                    AssessResDTO assessResDTO = assessMapper.toAssessResDto(assess);
+                    assessResDTO.setAssessDetails(assessResDTO.getAssessDetails().stream()
+                            .peek(assessDetail -> assessDetail.setAssessId(assessResDTO.getId()))
+                            .collect(Collectors.toList()));
+                    return assessResDTO;
+                })
+                .collect(Collectors.toList());
+    }
+    @Override
     @Transactional
     public AssessResDTO saveAssess(AssessReqDTO assessReqDto) {
         User user = userRepository.findById(Long.valueOf(assessReqDto.getUserId()))
@@ -73,7 +85,17 @@ public class AssessService implements IAssessService {
         Assess assessToUpdate = assessRepository.findById(assessId)
                 .orElseThrow(() -> new AppException(ErrorCode.ASSESS_IS_NOT_EXIST));
 
+        User user = userRepository.findById(Long.parseLong(assessReqDto.getUserId()))
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User toUser = userRepository.findById(Long.parseLong(assessReqDto.getToUserId()))
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Project project = projectRepository.findById(Long.parseLong(assessReqDto.getProjectId()))
+                .orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
+
         assessToUpdate = assessMapper.updateAssess(assessReqDto, assessToUpdate);
+        assessToUpdate.setUser(user);
+        assessToUpdate.setToUser(toUser);
+        assessToUpdate.setProject(project);
         return assessMapper.toAssessResDto(assessRepository.save(assessToUpdate));
     }
 
@@ -105,7 +127,7 @@ public class AssessService implements IAssessService {
     }
 
     @Override
-    public AssessResDTO getAssess(Long userId, Long projectId) {
+    public AssessResDTO getAssesss(Long userId, Long projectId) {
         return assessMapper.toAssessResDto(assessRepository.findByToUserIdAndAssessmentTypeAndProjectId(userId, ETypeAssess.SELF, projectId));
     }
 
