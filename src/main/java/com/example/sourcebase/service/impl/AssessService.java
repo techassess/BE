@@ -43,6 +43,18 @@ public class AssessService implements IAssessService {
     IUserProjectRepository userProjectRepository;
 
     @Override
+    public List<AssessResDTO> getAssess(Long userId, Long toUserId,  Long projectId, String assessmentType) {
+        return assessRepository.getAssess(userId,toUserId, projectId,assessmentType).stream()
+                .map(assess -> {
+                    AssessResDTO assessResDTO = assessMapper.toAssessResDto(assess);
+                    assessResDTO.setAssessDetails(assessResDTO.getAssessDetails().stream()
+                            .peek(assessDetail -> assessDetail.setAssessId(assessResDTO.getId()))
+                            .collect(Collectors.toList()));
+                    return assessResDTO;
+                })
+                .collect(Collectors.toList());
+    }
+    @Override
     @Transactional
     public AssessResDTO saveAssess(AssessReqDTO assessReqDto) {
         User user = userRepository.findById(Long.valueOf(assessReqDto.getUserId()))
@@ -105,7 +117,7 @@ public class AssessService implements IAssessService {
     }
 
     @Override
-    public AssessResDTO getAssess(Long userId, Long projectId) {
+    public AssessResDTO getAssesss(Long userId, Long projectId) {
         return assessMapper.toAssessResDto(assessRepository.findByToUserIdAndAssessmentTypeAndProjectId(userId, ETypeAssess.SELF, projectId));
     }
 

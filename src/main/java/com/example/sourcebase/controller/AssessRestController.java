@@ -22,6 +22,21 @@ public class AssessRestController {
     IAssessService assessService;
     IRatedRankService ratedRankService;
 
+    @GetMapping(path = {"/", ""})
+    public  ResponseEntity<ResponseData<?>> getAssess(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) Long toUserId,
+            @RequestParam(required = false) Long projectId,
+            @RequestParam(required = false) String assessmentType
+    ) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.GET_SUCCESSFUL.getCode())
+                        .message(SuccessCode.GET_SUCCESSFUL.getMessage())
+                        .data(assessService.getAssess(userId,toUserId,projectId,assessmentType))
+                        .build()
+        );
+    }
     @PostMapping("/save-assess")
     @CrossOrigin
     public ResponseEntity<ResponseData<?>> saveAssess(@Valid @RequestBody AssessReqDTO assessReqDto) {
@@ -67,9 +82,9 @@ public class AssessRestController {
         );
     }
 
-    @GetMapping
+    @GetMapping("/my-assess")
     public ResponseEntity<ResponseData<?>> getAllUserHadSameProject(@RequestParam Long userId, @RequestParam Long projectId) {
-        if (assessService.getAssess(userId, projectId) == null) {
+        if (assessService.getAssesss(userId, projectId) == null) {
             return ResponseEntity.status(ErrorCode.ASSESS_IS_NOT_EXIST.getHttpStatus()).body(
                     ResponseData.builder()
                             .code(ErrorCode.ASSESS_IS_NOT_EXIST.getCode())
@@ -81,7 +96,7 @@ public class AssessRestController {
                 ResponseData.builder()
                         .code(SuccessCode.GET_SUCCESSFUL.getCode())
                         .message(SuccessCode.GET_SUCCESSFUL.getMessage())
-                        .data(assessService.getAssess(userId, projectId))
+                        .data(assessService.getAssesss(userId, projectId))
                         .build()
         );
     }

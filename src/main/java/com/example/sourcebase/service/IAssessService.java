@@ -2,10 +2,13 @@ package com.example.sourcebase.service;
 
 import com.example.sourcebase.domain.dto.reqdto.AssessReqDTO;
 import com.example.sourcebase.domain.dto.resdto.AssessResDTO;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
 public interface IAssessService {
+    List<AssessResDTO> getAssess(Long userId, Long toUserId,  Long projectId, String assessmentType);
+
     AssessResDTO saveAssess(AssessReqDTO assessReqDto);
 
     AssessResDTO updateAssess(AssessReqDTO assessReqDto, Long assessId);
@@ -14,7 +17,7 @@ public interface IAssessService {
 
     boolean isSubmitForm(Long userId, Long toUserId);
 
-    AssessResDTO getAssess(Long userId, Long projectId);
+    AssessResDTO getAssesss(Long userId, Long projectId);
 
     List<AssessResDTO> getListAssessByUserId(Long userId, Long projectId);
 }
