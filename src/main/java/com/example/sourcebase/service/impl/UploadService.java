@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.example.sourcebase.domain.FileInfo;
 import com.example.sourcebase.repository.IFileInfoRepository;
 import com.example.sourcebase.service.IUploadService;
+import com.example.sourcebase.util.ImageCompressor;
 import com.example.sourcebase.util.UploadUtils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -33,7 +34,10 @@ public class UploadService implements IUploadService {
         var file = new FileInfo();
         fileRepository.save(file);
 
-        var uploadResult = cloudinary.uploader().upload(avatar.getBytes(), uploadUtils.buildImageUploadParams(file));
+        MultipartFile compressedAvatar = ImageCompressor.createCompressedMultipartFile(
+                ImageCompressor.compressImage(avatar), avatar
+        );
+        var uploadResult = cloudinary.uploader().upload(compressedAvatar.getBytes(), uploadUtils.buildImageUploadParams(file));
 
         String fileUrl = (String) uploadResult.get("secure_url");
         String fileFormat = (String) uploadResult.get("format");
