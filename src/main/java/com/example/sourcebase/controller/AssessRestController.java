@@ -29,13 +29,24 @@ public class AssessRestController {
                 ResponseData.builder()
                         .code(SuccessCode.CREATED.getCode())
                         .message(SuccessCode.CREATED.getMessage())
-                        .data(assessService.updateAssess(assessReqDto))
+                        .data(assessService.saveAssess(assessReqDto))
+                        .build()
+        );
+    }
+
+    @PutMapping("/{assessId}")
+    public ResponseEntity<ResponseData<?>> updateAssess(@Valid @RequestBody AssessReqDTO assessReqDto, @PathVariable Long assessId) {
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.UPDATED.getCode())
+                        .message(SuccessCode.UPDATED.getMessage())
+                        .data(assessService.updateAssess(assessReqDto, assessId))
                         .build()
         );
     }
 
     @GetMapping("/list-assess-of-user/{userId}")
-    public ResponseEntity<ResponseData<?>> getListAssessOfUserId(@PathVariable Long userId,@RequestParam(required = false) Long projectId) {
+    public ResponseEntity<ResponseData<?>> getListAssessOfUserId(@PathVariable Long userId, @RequestParam(required = false) Long projectId) {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.GET_SUCCESSFUL.getCode())
@@ -46,19 +57,19 @@ public class AssessRestController {
     }
 
     @GetMapping("/list-assess-by-user/{userId}")
-    public ResponseEntity<ResponseData<?>> getListAssessByUserId(@PathVariable Long userId,@RequestParam(required = false) Long projectId) {
+    public ResponseEntity<ResponseData<?>> getListAssessByUserId(@PathVariable Long userId, @RequestParam(required = false) Long projectId) {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .code(SuccessCode.GET_SUCCESSFUL.getCode())
                         .message(SuccessCode.GET_SUCCESSFUL.getMessage())
-                        .data(assessService.getListAssessByUserId(userId,projectId))
+                        .data(assessService.getListAssessByUserId(userId, projectId))
                         .build()
         );
     }
 
     @GetMapping
-    public ResponseEntity<ResponseData<?>> getAllUserHadSameProject(@RequestParam Long userId,@RequestParam Long projectId) {
-        if (assessService.getAssess(userId,projectId) == null) {
+    public ResponseEntity<ResponseData<?>> getAllUserHadSameProject(@RequestParam Long userId, @RequestParam Long projectId) {
+        if (assessService.getAssess(userId, projectId) == null) {
             return ResponseEntity.status(ErrorCode.ASSESS_IS_NOT_EXIST.getHttpStatus()).body(
                     ResponseData.builder()
                             .code(ErrorCode.ASSESS_IS_NOT_EXIST.getCode())
@@ -70,7 +81,7 @@ public class AssessRestController {
                 ResponseData.builder()
                         .code(SuccessCode.GET_SUCCESSFUL.getCode())
                         .message(SuccessCode.GET_SUCCESSFUL.getMessage())
-                        .data(assessService.getAssess(userId,projectId))
+                        .data(assessService.getAssess(userId, projectId))
                         .build()
         );
     }

@@ -162,15 +162,15 @@ public class RatedRankServiceImpl implements IRatedRankService {
                 .toList();
 
         // get overall rated of a user by project
-        List<OverallRatedResDto> overallRatedResDtos = projectIds.stream()
-                .map(projectId -> getOverallRatedOfAUserByProject(toUserId, projectId))
-                .toList();
+//        List<OverallRatedResDto> overallRatedResDtos = projectIds.stream()
+//                .map(projectId -> getOverallRatedOfAUserByProject(toUserId, projectId))
+//                .toList();
 
         // normalize each list
-        List<OverallOfACriterion> overallOfCriteria = new ArrayList<>();
-        for (OverallRatedResDto overallRatedResDto : overallRatedResDtos) {
-            overallOfCriteria.addAll(overallRatedResDto.getOverallOfCriteria());
-        }
+//        List<OverallOfACriterion> overallOfCriteria = new ArrayList<>();
+//        for (OverallRatedResDto overallRatedResDto : overallRatedResDtos) {
+//            overallOfCriteria.addAll(overallRatedResDto.getOverallOfCriteria());
+//        }
 
 
         return getOverallRatedOfAUserByProject(toUserId, projectIds.getFirst());
