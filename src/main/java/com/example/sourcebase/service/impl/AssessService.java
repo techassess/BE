@@ -1,10 +1,11 @@
 package com.example.sourcebase.service.impl;
 
-import com.example.sourcebase.domain.Assess;
-import com.example.sourcebase.domain.Project;
-import com.example.sourcebase.domain.User;
+import com.example.sourcebase.domain.*;
+import com.example.sourcebase.domain.dto.reqdto.AssessDetailReqDTO;
+import com.example.sourcebase.domain.dto.reqdto.AssessDetailUpdateReqDTO;
 import com.example.sourcebase.domain.dto.reqdto.AssessReqDTO;
 import com.example.sourcebase.domain.dto.resdto.AssessResDTO;
+import com.example.sourcebase.domain.dto.resdto.AssessResUpdateDTO;
 import com.example.sourcebase.domain.enumeration.ETypeAssess;
 import com.example.sourcebase.exception.AppException;
 import com.example.sourcebase.mapper.AssessDetailMapper;
@@ -120,6 +121,34 @@ public class AssessService implements IAssessService {
                     return assessResDTO;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public AssessResUpdateDTO updateAssessDetails(Long assessId, List<AssessDetailUpdateReqDTO> assessDetails) {
+        Assess assess = assessRepository.findById(assessId)
+                .orElseThrow(() -> new AppException(ErrorCode.ASSESS_IS_NOT_EXIST));
+
+        List<AssessDetail> updatedDetails = assessDetails.stream()
+                .map(detailDto -> {
+                    AssessDetail detail = assessDetailRepository.findById(detailDto.getAssessDetailId())
+                            .orElseThrow(() -> new AppException(ErrorCode.ASSESS_IS_NOT_EXIST));
+                    Criteria criteria = criteriaRepository.findById(Long.parseLong(detailDto.getCriteriaId()))
+                            .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
+                    detail.setCriteria(criteria);
+                    assessDetailMapper.updateAssessDetailDto(detailDto, detail);
+                    if(detailDto.getQuestionId() != null){
+                        Question question = questionRepository.findById(Long.parseLong(detailDto.getQuestionId()))
+                                .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
+                        detail.setQuestion(question);
+                    }else{
+                        detail.setQuestion(null);
+                    }
+                    return detail;
+                })
+                .toList();
+        assessDetailRepository.saveAll(updatedDetails);
+        return assessMapper.toAssessResUpdateDto(assess);
     }
 
 
