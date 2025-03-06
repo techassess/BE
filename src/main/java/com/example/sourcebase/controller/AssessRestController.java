@@ -1,5 +1,7 @@
 package com.example.sourcebase.controller;
 
+import com.example.sourcebase.domain.dto.reqdto.AssessDetailReqDTO;
+import com.example.sourcebase.domain.dto.reqdto.AssessDetailUpdateReqDTO;
 import com.example.sourcebase.domain.dto.reqdto.AssessReqDTO;
 import com.example.sourcebase.service.IAssessService;
 import com.example.sourcebase.service.IRatedRankService;
@@ -12,6 +14,8 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/assess")
@@ -109,6 +113,19 @@ public class AssessRestController {
                         .code(SuccessCode.GET_SUCCESSFUL.getCode())
                         .message(SuccessCode.GET_SUCCESSFUL.getMessage())
 //                        .data(ratedRankService.getAverageValueOfCriteriaByManager(Long.parseLong(userId)))
+                        .build()
+        );
+    }
+    @PutMapping("/{assessId}/details")
+    public ResponseEntity<ResponseData<?>> updateAssessDetails(
+            @Valid @RequestBody List<AssessDetailUpdateReqDTO> assessDetails,
+            @PathVariable Long assessId) {
+
+        return ResponseEntity.ok(
+                ResponseData.builder()
+                        .code(SuccessCode.UPDATED.getCode())
+                        .message(SuccessCode.UPDATED.getMessage())
+                        .data(assessService.updateAssessDetails(assessId, assessDetails))
                         .build()
         );
     }
