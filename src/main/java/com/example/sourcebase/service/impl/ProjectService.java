@@ -167,12 +167,14 @@ public class ProjectService implements IProjectService {
     @Override
     @Transactional
     public ProjectResDTO addEmployeesToProject(Long projectId, ProjectReqDTO requestDTO) {
-        User leader = userRepository.findById((requestDTO.getLeaderId()))
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
 
-        project.setLeader(leader);
+        if (project.getLeader() == null) {
+            User leader = userRepository.findById(requestDTO.getLeaderId())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            project.setLeader(leader);
+        }
         projectRepository.save(project);
         List<User> usersToAdd = userRepository.findAllById(requestDTO.getEmployeeIds());
 
@@ -207,7 +209,7 @@ public class ProjectService implements IProjectService {
         responseDTO.setStartDay(project.getStartDay());
         responseDTO.setEndDay(project.getEndDay());
         responseDTO.setUserProjects(userProjectResDTOS);
-        responseDTO.setLeaderId(leader.getId());
+        responseDTO.setLeaderId(project.getLeader() != null ? project.getLeader().getId() : null);
         return responseDTO;
     }
 
