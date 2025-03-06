@@ -85,17 +85,7 @@ public class AssessService implements IAssessService {
         Assess assessToUpdate = assessRepository.findById(assessId)
                 .orElseThrow(() -> new AppException(ErrorCode.ASSESS_IS_NOT_EXIST));
 
-        User user = userRepository.findById(Long.parseLong(assessReqDto.getUserId()))
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        User toUser = userRepository.findById(Long.parseLong(assessReqDto.getToUserId()))
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        Project project = projectRepository.findById(Long.parseLong(assessReqDto.getProjectId()))
-                .orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
-
         assessToUpdate = assessMapper.updateAssess(assessReqDto, assessToUpdate);
-        assessToUpdate.setUser(user);
-        assessToUpdate.setToUser(toUser);
-        assessToUpdate.setProject(project);
         return assessMapper.toAssessResDto(assessRepository.save(assessToUpdate));
     }
 
