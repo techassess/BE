@@ -1,7 +1,6 @@
 package com.example.sourcebase.service.impl;
 
 import com.example.sourcebase.domain.*;
-import com.example.sourcebase.domain.dto.reqdto.AssessDetailReqDTO;
 import com.example.sourcebase.domain.dto.reqdto.AssessDetailUpdateReqDTO;
 import com.example.sourcebase.domain.dto.reqdto.AssessReqDTO;
 import com.example.sourcebase.domain.dto.resdto.AssessResDTO;
@@ -44,8 +43,8 @@ public class AssessService implements IAssessService {
     IUserProjectRepository userProjectRepository;
 
     @Override
-    public List<AssessResDTO> getAssess(Long userId, Long toUserId,  Long projectId, String assessmentType) {
-        return assessRepository.getAssess(userId,toUserId, projectId,assessmentType).stream()
+    public List<AssessResDTO> getAssess(Long userId, Long toUserId, Long projectId, String assessmentType) {
+        return assessRepository.getAssess(userId, toUserId, projectId, assessmentType).stream()
                 .map(assess -> {
                     AssessResDTO assessResDTO = assessMapper.toAssessResDto(assess);
                     assessResDTO.setAssessDetails(assessResDTO.getAssessDetails().stream()
@@ -55,6 +54,7 @@ public class AssessService implements IAssessService {
                 })
                 .collect(Collectors.toList());
     }
+
     @Override
     @Transactional
     public AssessResDTO saveAssess(AssessReqDTO assessReqDto) {
@@ -71,7 +71,11 @@ public class AssessService implements IAssessService {
         assess.setAssessmentDate(LocalDate.now());
 
         assess.getAssessDetails().forEach(ad -> {
-            ad.setQuestion(questionRepository.findById(ad.getQuestion().getId()).orElse(null));
+            if (ad.getQuestion().getId() != null) {
+                ad.setQuestion(questionRepository.findById(ad.getQuestion().getId()).orElse(null));
+            } else {
+                ad.setQuestion(null);
+            }
             ad.setCriteria(criteriaRepository.findById(ad.getCriteria().getId()).orElse(null));
         });
 
@@ -149,11 +153,11 @@ public class AssessService implements IAssessService {
                             .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
                     detail.setCriteria(criteria);
                     assessDetailMapper.updateAssessDetailDto(detailDto, detail);
-                    if(detailDto.getQuestionId() != null){
+                    if (detailDto.getQuestionId() != null) {
                         Question question = questionRepository.findById(Long.parseLong(detailDto.getQuestionId()))
                                 .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_FOUND));
                         detail.setQuestion(question);
-                    }else{
+                    } else {
                         detail.setQuestion(null);
                     }
                     return detail;

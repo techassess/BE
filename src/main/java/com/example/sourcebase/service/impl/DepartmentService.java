@@ -20,7 +20,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +42,7 @@ public class DepartmentService implements IDepartmentService {
         departments.forEach(department ->
                 department.setCriterias(
                         department.getCriterias().stream()
-                                .filter(criteria -> !criteria.isDeleted())
+                                .filter(criteria -> criteria.getDeletedAt() == null)
                                 .collect(Collectors.toSet())
                 )
         );
@@ -58,8 +60,8 @@ public class DepartmentService implements IDepartmentService {
     public void deleteDepartment(Long id) {
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
-        department.getCriterias().forEach(criteria -> criteria.setDeleted(true));
-        department.setDeleted(true);
+        department.getCriterias().forEach(criteria -> criteria.setDeletedAt(LocalDateTime.now()));
+        department.setDeletedAt(LocalDateTime.now());
         departmentRepository.save(department);
     }
 
@@ -67,7 +69,7 @@ public class DepartmentService implements IDepartmentService {
     @Transactional
     public DepartmentResDTO addDepartment(DepartmentReqDTO departmentReqDTO) {
         Department department = departmentMapper.toEntity(departmentReqDTO);
-        if (departmentRepository.existsByNameIgnoreCaseAndDeletedIsFalse(department.getName())) {
+        if (departmentRepository.existsByNameIgnoreCase(department.getName())) {
             throw new AppException(ErrorCode.DEPARTMENT_ALREADY_EXIST);
         }
         return departmentMapper.toDepartmentResDTO(departmentRepository.save(department));

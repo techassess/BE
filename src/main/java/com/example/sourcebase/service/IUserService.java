@@ -8,12 +8,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+
 public interface IUserService {
     List<UserResDTO> getAllUser();
 
 
-    UserResDTO register(RegisterReqDTO userNew , MultipartFile avatar) throws IOException;
+    UserResDTO register(RegisterReqDTO userNew, MultipartFile avatar) throws IOException;
+
     String login(UserLoginReqDTO userLogin);
+
     UserDetailResDTO getUserDetailBy(String username);
 
     UserResDTO getUserById(Long id);

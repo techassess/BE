@@ -26,4 +26,5 @@ public class CriteriaReqDTO {
 
     ETypeCriteria visibleFor = ETypeCriteria.ALL_MEMBER;
 
+    Long departmentId;
 }

@@ -1,6 +1,5 @@
 package com.example.sourcebase.domain.dto.resdto;
 
-import com.example.sourcebase.domain.Answer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

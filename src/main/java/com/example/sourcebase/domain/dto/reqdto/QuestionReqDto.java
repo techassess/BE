@@ -1,13 +1,10 @@
 package com.example.sourcebase.domain.dto.reqdto;
 
-import com.example.sourcebase.domain.Answer;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**

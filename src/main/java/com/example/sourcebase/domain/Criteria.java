@@ -4,6 +4,8 @@ import com.example.sourcebase.domain.enumeration.ETypeCriteria;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.List;
 
@@ -14,7 +16,9 @@ import java.util.List;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Criteria implements Comparable<Criteria> {
+@SQLDelete(sql = "UPDATE criterias SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
+public class Criteria extends BaseEntity implements Comparable<Criteria> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -28,9 +32,6 @@ public class Criteria implements Comparable<Criteria> {
 
     @OneToMany(mappedBy = "criteria", fetch = FetchType.LAZY)
     List<Question> questions;
-
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = false)

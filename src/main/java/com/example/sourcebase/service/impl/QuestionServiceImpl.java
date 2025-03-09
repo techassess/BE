@@ -26,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,7 +76,7 @@ public class QuestionServiceImpl implements IQuestionService {
         questionRepository.save(updatedQuestion);
 
         int totalPoints = questionRepository.findByCriteriaId(currentCriteria.getId()).stream()
-                .filter(q -> !q.isDeleted())
+                .filter(q -> q.getDeletedAt() == null)
                 .mapToInt(Question::getPoint)
                 .sum();
 
@@ -103,17 +104,17 @@ public class QuestionServiceImpl implements IQuestionService {
         Long criteriaID = question.getCriteria().getId();
 
         if (question.getAnswers() != null) {
-            question.getAnswers().forEach(answer -> answer.setDeleted(true));
+            question.getAnswers().forEach(answer -> answer.setDeletedAt(LocalDateTime.now()));
         }
 
-        question.setDeleted(true);
+        question.setDeletedAt(LocalDateTime.now());
         questionRepository.save(question);
 
         Criteria currentCriteria = criteriaRepository.findById(criteriaID)
                 .orElseThrow(() -> new AppException(ErrorCode.CRITERIA_NOT_FOUND));
 
         int totalPoints = questionRepository.findByCriteriaId(currentCriteria.getId()).stream()
-                .filter(q -> !q.isDeleted())
+                .filter(q -> q.getDeletedAt() == null)
                 .mapToInt(Question::getPoint)
                 .sum();
 

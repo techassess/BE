@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,25 +55,14 @@ public class ProjectService implements IProjectService {
     @Override
     public List<ProjectResDTO> getAll() {
         // Lấy tất cả các dự án từ repository
-        List<Project> projects = projectRepository.findAll();
-        List<ProjectResDTO> projectResDTOS = new ArrayList<>();
-
-        // Duyệt qua từng dự án
-        for (Project project : projects) {
-            // Gọi hàm getProjectById để lấy ProjectResDTO cho từng dự án
-            ProjectResDTO projectResDTO = getProjectById(project.getId());
-            if (project.getLeader() != null && project.getDepartment().getId() != null) {
-                projectResDTO.setLeaderId(project.getLeader().getId());
-            }
-            projectResDTOS.add(projectResDTO);
-        }
-
-        return projectResDTOS;
+//        List<Project> projects = projectRepository.findAll();
+        return projectRepository.findAll()
+                .stream().map(projectMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public ProjectResDTO getProjectById(Long id) {
-        System.out.println("id cuar project: " + id);
         Project project = projectRepository.findById(id).orElse(null);
 
         ProjectResDTO projectResDTO = projectMapper.toResponseDTO(project);
@@ -105,7 +93,7 @@ public class ProjectService implements IProjectService {
                 .orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        if(project.getLeader().getId().equals(user.getId())) {
+        if (project.getLeader().getId().equals(user.getId())) {
             throw new AppException(ErrorCode.LEADER_CANNOT_DELETE_IN_PROJECT);
         }
         UserProject userProject = userProjectRepository.findByProject_IdAndUser_Id(projectId, userId);
@@ -114,7 +102,6 @@ public class ProjectService implements IProjectService {
         }
         userProjectRepository.delete(userProject);
     }
-
 
 
     @Override
