@@ -30,7 +30,7 @@ public class Criteria extends BaseEntity implements Comparable<Criteria> {
 
     int point;
 
-    @OneToMany(mappedBy = "criteria", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "criteria", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<Question> questions;
 
     @ManyToOne(fetch = FetchType.LAZY)
