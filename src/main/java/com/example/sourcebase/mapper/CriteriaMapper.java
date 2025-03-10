@@ -8,16 +8,14 @@ import com.example.sourcebase.domain.dto.resdto.AnswerResDTO;
 import com.example.sourcebase.domain.dto.resdto.CriteriaResDTO;
 import com.example.sourcebase.domain.dto.resdto.QuestionResDTO;
 import com.example.sourcebase.domain.enumeration.ETypeCriteria;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 
 import java.util.List;
 import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface CriteriaMapper {
+    @Mapping(target = "department.id", source = "departmentId")
     Criteria toEntity(CriteriaReqDTO reqDTO);
 
     CriteriaResDTO toCriteriaResDTO(Criteria criteria);

@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -64,7 +65,7 @@ public class AnswerServiceImpl implements IAnswerService {
     public void deleteAnswer(Long id) {
         Answer answer = answerRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ANSWER_NOT_FOUND));
-        answer.setDeleted(true);
+        answer.setDeletedAt(LocalDateTime.now());
         answerRepository.save(answer);
     }
 

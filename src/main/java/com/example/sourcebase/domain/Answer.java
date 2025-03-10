@@ -3,6 +3,8 @@ package com.example.sourcebase.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "answers")
@@ -11,7 +13,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Answer {
+@SQLDelete(sql = "UPDATE answers SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
+public class Answer extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -22,7 +26,4 @@ public class Answer {
 
     @ManyToOne
     Question question;
-
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
 }

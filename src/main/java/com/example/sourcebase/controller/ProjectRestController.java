@@ -41,15 +41,15 @@ public class ProjectRestController {
                         .build());
     }
 
-@DeleteMapping("/{id}")
-public ResponseEntity<ResponseData<?>> deleteProject(@PathVariable Long id, @RequestParam(required = false) Long userId) {
-    if (userId != null) {
-        projectService.deleteEmployeeFromProject(id, userId);
-    } else {
-        projectService.deleteProject(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseData<?>> deleteProject(@PathVariable Long id, @RequestParam(required = false) Long userId) {
+        if (userId != null) {
+            projectService.deleteEmployeeFromProject(id, userId);
+        } else {
+            projectService.deleteProject(id);
+        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-}
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseData<?>> getProjectById(@PathVariable Long id) {
@@ -74,7 +74,7 @@ public ResponseEntity<ResponseData<?>> deleteProject(@PathVariable Long id, @Req
 
     @PutMapping("/updateLeader/{projectId}")
     public ResponseEntity<ResponseData<?>> updateLeader(@PathVariable Long projectId,
-            @RequestBody ProjectReqDTO projectReqDTO) {
+                                                        @RequestBody ProjectReqDTO projectReqDTO) {
         ProjectResDTO updatedProject = projectService.updateLeader(projectId, projectReqDTO);
         return ResponseEntity.ok(
                 ResponseData.builder()

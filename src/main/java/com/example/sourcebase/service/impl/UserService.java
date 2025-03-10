@@ -75,7 +75,7 @@ public class UserService implements IUserService, UserDetailsService {
         registerReqDTO.setPassword(passwordEncoder.encode(registerReqDTO.getPassword()));
         User userNew = userMapper.toUser(registerReqDTO);
         userNew.setFileInfo(fileInfo);
-        userNew.setCreatedAt(LocalDateTime.now());
+//        userNew.setCreatedAt(LocalDateTime.now());
         userNew.setActive(true);
         User createdUser = userRepository.save(userNew);
 
@@ -239,7 +239,8 @@ public class UserService implements IUserService, UserDetailsService {
             Optional<User> userOpt = userRepository.findById(id);
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
-                user.setDeleted(true);
+//                user.setDeleted(true);
+                user.setDeletedAt(LocalDateTime.now());
                 user.setActive(false);
                 userRepository.save(user);
                 return true;
@@ -329,14 +330,14 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public List<UserResDTO> getAllUserHadSameProject(Long userId,Long projectId) {
+    public List<UserResDTO> getAllUserHadSameProject(Long userId, Long projectId) {
 
         Project p = null;
         if (projectId != null) {
             p = projectRepository.findById(projectId).orElse(null);
         }
 
-        List<User> userList = userRepository.getAllUserHadSameProject(userId,projectId);
+        List<User> userList = userRepository.getAllUserHadSameProject(userId, projectId);
         List<UserResDTO> userResDTOS = new ArrayList<>();
         for (User user : userList) {
             UserResDTO userResDTO = userMapper.toUserResDTO(user);

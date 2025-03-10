@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -52,7 +53,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
                     // Mapping questions nếu có câu hỏi
                     if (criteria.getQuestions() != null && !criteria.getQuestions().isEmpty()) {
                         List<QuestionResDTO> questionResDTOs = criteria.getQuestions().stream()
-                                .filter(question -> !question.isDeleted())
+                                .filter(question -> question.getDeletedAt() == null)
                                 .map(question -> {
                                     QuestionResDTO questionResDTO = questionMapper.toQuestionResDTO(question);
 
@@ -75,19 +76,17 @@ public class CriteriaServiceImpl implements ICriteriaService {
                     }
 
                     return criteriaResDTO;
-                })
-                .collect(Collectors.toList());
+                }).sorted((c1, c2) -> {
+                    if (c1.getQuestions().isEmpty() && !c2.getQuestions().isEmpty()) {
+                        return 1;
+                    } else if (!c1.getQuestions().isEmpty() && c2.getQuestions().isEmpty()) {
+                        return -1;
+                    } else {
+                        return c1.getId().compareTo(c2.getId());
+                    }
+                }).collect(Collectors.toList());
 
         // sort in order: criteria with questions first, criteria without questions last
-        criteriaResDTOs.sort((c1, c2) -> {
-            if (c1.getQuestions().isEmpty() && !c2.getQuestions().isEmpty()) {
-                return 1;
-            } else if (!c1.getQuestions().isEmpty() && c2.getQuestions().isEmpty()) {
-                return -1;
-            } else {
-                return c1.getId().compareTo(c2.getId());
-            }
-        });
         return criteriaResDTOs;
     }
 
@@ -105,7 +104,7 @@ public class CriteriaServiceImpl implements ICriteriaService {
         // lọc đi các câu hỏi đã bị xóa
         criteria.setQuestions(
                 criteria.getQuestions().stream()
-                        .filter(question -> !question.isDeleted())
+                        .filter(question -> question.getDeletedAt() == null)
                         .collect(Collectors.toList())
         );
         return criteriaMapper.toCriteriaResDTO(criteria);
@@ -160,13 +159,13 @@ public class CriteriaServiceImpl implements ICriteriaService {
 
         if (criteria.getQuestions() != null) {
             criteria.getQuestions().forEach(question -> {
-                question.setDeleted(true);
+                question.setDeletedAt(LocalDateTime.now());
                 if (question.getAnswers() != null) {
-                    question.getAnswers().forEach(answer -> answer.setDeleted(true));
+                    question.getAnswers().forEach(answer -> answer.setDeletedAt(LocalDateTime.now()));
                 }
             });
         }
-        criteria.setDeleted(true);
+        criteria.setDeletedAt(LocalDateTime.now());
         criteriaRepository.save(criteria);
     }
 
@@ -183,13 +182,11 @@ public class CriteriaServiceImpl implements ICriteriaService {
         if (criteriaRepository.existsByTitleIgnoreCase(newCriteria.getTitle())) {
             throw new AppException(ErrorCode.CRITERIA_EXISTED);
         }
+
+        Department department = departmentRepository.findById(departmentId).orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+        newCriteria.setDepartment(department);
+
         Criteria savedCriteria = criteriaRepository.save(newCriteria);
-
-        Department d = departmentRepository.findById(departmentId)
-                .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
-        d.addCriteria(savedCriteria);
-        departmentRepository.save(d);
-
         return criteriaMapper.toCriteriaResDTO(savedCriteria);
     }
 

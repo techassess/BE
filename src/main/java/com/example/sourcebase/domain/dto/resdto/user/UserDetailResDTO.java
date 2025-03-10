@@ -26,9 +26,7 @@ public class UserDetailResDTO {
     String dob;
     EGender gender;
     String username;
-    String password;
     Rank rank;
-    boolean isDeleted;
     LocalDateTime createdAt;
     FileInfoResDTO fileInfoResDto;
     List<UserRoleResDTO> userRoles;

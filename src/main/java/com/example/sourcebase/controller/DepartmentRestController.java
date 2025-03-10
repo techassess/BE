@@ -54,7 +54,7 @@ public class DepartmentRestController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseData<?>> createDepartment(@Valid @RequestBody DepartmentReqDTO departmentReqDTO) {
+    public ResponseEntity<ResponseData<?>> createDepartment(@Valid DepartmentReqDTO departmentReqDTO) {
         DepartmentResDTO d = departmentService.addDepartment(departmentReqDTO);
 
         return ResponseEntity.ok(ResponseData.builder().code(SuccessCode.CREATED.getCode()).message(SuccessCode.CREATED.getMessage()).data(d).build());

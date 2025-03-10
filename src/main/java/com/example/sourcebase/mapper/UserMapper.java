@@ -5,7 +5,10 @@ import com.example.sourcebase.domain.dto.reqdto.user.RegisterReqDTO;
 import com.example.sourcebase.domain.dto.resdto.user.UserDetailResDTO;
 import com.example.sourcebase.domain.dto.resdto.user.UserResDTO;
 import com.example.sourcebase.domain.dto.resdto.user.UserRoleResDTO;
-import org.mapstruct.*;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -21,7 +24,6 @@ public interface UserMapper {
 
     UserRoleResDTO toUserRoleResDTO(User user);
 
-    @Mapping(target = "password", ignore = true)
     UserDetailResDTO toUserDetailResDTO(User user);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

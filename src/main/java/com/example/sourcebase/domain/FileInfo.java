@@ -1,15 +1,10 @@
 package com.example.sourcebase.domain;
 
-import com.example.sourcebase.domain.dto.resdto.FileInfoResDTO;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,8 +14,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "files")
 public class FileInfo {
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @Column(name = "file_name")
